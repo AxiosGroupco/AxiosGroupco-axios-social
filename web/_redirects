@@ -1,0 +1,5 @@
+# Cloudflare Pages: accesos cortos a la plataforma Axios.
+# Si la app cambia de dominio (p. ej. app.axiosgroupco.com), actualizar aquí y en index.html / 404.html.
+/ingresar  https://app-axios.pages.dev/login  302
+/app       https://app-axios.pages.dev/login  302
+/login     https://app-axios.pages.dev/login  302
