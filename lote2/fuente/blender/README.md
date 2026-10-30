@@ -8,8 +8,8 @@ y ajustarla a mano en Blender 4.2 o posterior.
 ## Generar las imágenes
 
 ```bash
-blender -b -P mascotas.py -- --salida ../../mascotas/equipo.png --muestras 128 --blend mascotas.blend
-blender -b -P mascotas.py -- --salida ../../mascotas/retrato_socio1.png --retrato 0 --muestras 96
+blender -b -P mascotas.py -- --salida ../../mascotas/equipo.png --muestras 40 --blend mascotas.blend
+blender -b -P mascotas.py -- --salida ../../mascotas/retrato_socio1.png --retrato 0 --muestras 40
 ```
 
 - `--retrato 0|1|2`: primer plano de un socio (1080x1080). Sin este parámetro: el grupo (1080x1350).
@@ -19,7 +19,7 @@ blender -b -P mascotas.py -- --salida ../../mascotas/retrato_socio1.png --retrat
 
 - `SOCIOS`: tono de piel, pelo, ojos, atuendo (`camisa_vestir`, `buso`, `blazer`), pantalón (`chino`, `jean`, `gris`),
   zapatos (`cuero_cafe`, `tenis`, `cuero_negro`), peinado (`copete`, `rizado`, `corto`), barba, gafas y cadena.
-- `pelo()`: cada peinado está hecho de mechones curvos (bloques biselados, doblados y suavizados).
+- `pelo()`: pelo realista de hebras (curvas de pelo de Blender con material Principled Hair): copete de lado con volumen moderado, rizos en espiral y corte corto peinado hacia arriba. La barba sigue en bloques.
 - `ropa()`: detalles de cada atuendo (capucha y cordones, bolsillo con símbolo AX y lapicero dorado, blazer con corbata y pin).
 - `POSES`: brazos (hombro y codo), cabeza, cejas, `guino`, `pulgar_arriba`, `calculadora`.
 - `ax-simbolo.png`: el símbolo AX recortado del logo, usado en el buso, el bolsillo y el pin.

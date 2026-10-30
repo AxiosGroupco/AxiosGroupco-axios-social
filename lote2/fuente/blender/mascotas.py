@@ -185,79 +185,198 @@ SOCIOS = [
          zapato='cuero_negro', peinado='corto', ancho=1.04, ceja=0.13, semilla=3),
 ]
 
-def pelo(s, cabeza, PELO, rnd):
-    """Pelo hecho de mechones. La cabeza ocupa x ±0.88, y ±0.81 (frente en -y), z 0..1.62."""
-    est = s['peinado']
-    # Base que evita huecos entre mechones
-    caja('pelo_tapa', (1.82, 1.68, 0.16), (0, 0.03, 1.66), PELO, cabeza, bisel=0.07)
-    caja('pelo_nuca', (1.82, 0.18, 0.95), (0, 0.8, 1.15), PELO, cabeza, bisel=0.06)
+TOP = 1.62  # altura de la coronilla en coordenadas de la cabeza
+
+def mat_pelo(nombre, melanina, rojizo=0.45):
+    """Material de pelo realista (Principled Hair, modelo de melanina)."""
+    if nombre in _mats:
+        return _mats[nombre]
+    m = bpy.data.materials.new(nombre); m.use_nodes = True
+    n = m.node_tree.nodes; l = m.node_tree.links
+    for k in list(n):
+        if k.type != 'OUTPUT_MATERIAL':
+            n.remove(k)
+    h = n.new('ShaderNodeBsdfHairPrincipled'); h.parametrization = 'MELANIN'
+    h.inputs['Melanin'].default_value = melanina
+    h.inputs['Melanin Redness'].default_value = rojizo
+    h.inputs['Roughness'].default_value = 0.3
+    h.inputs['Radial Roughness'].default_value = 0.35
+    h.inputs['Coat'].default_value = 0.05
+    h.inputs['Random Color'].default_value = 0.08
+    h.inputs['Random Roughness'].default_value = 0.1
+    l.new(h.outputs[0], n['Material Output'].inputs['Surface'])
+    _mats[nombre] = m
+    return m
+
+def hebras(nombre, trazos, r_raiz, r_punta, material, padre):
+    """Crea un objeto de pelo (curvas) a partir de trazos de puntos en coordenadas de la cabeza."""
+    c = bpy.data.hair_curves.new(nombre)
+    c.add_curves([len(t) for t in trazos])
+    c.position_data.foreach_set('vector', [v for t in trazos for p in t for v in p])
+    radios = [r_raiz + (r_punta - r_raiz) * i / (len(t) - 1) for t in trazos for i in range(len(t))]
+    c.attributes.new('radius', 'FLOAT', 'POINT').data.foreach_set('value', radios)
+    c.materials.append(material)
+    ob = bpy.data.objects.new(nombre, c); scene.collection.objects.link(ob); ob.parent = padre
+    return ob
+
+def _lerp(a, b, k):
+    return tuple(x + (y - x) * k for x, y in zip(a, b))
+
+def _agrupar(trazos, guias, ids, fuerza):
+    """Junta las puntas de cada hebra con la de su mechón guía (como el pelo real)."""
+    out = []
+    for t, g in zip(trazos, ids):
+        guia = guias[g]; n = len(t)
+        out.append([_lerp(p, guia[min(i, len(guia) - 1)], fuerza * (i / (n - 1)) ** 1.3) for i, p in enumerate(t)])
+    return out
+
+def _sobre_cabeza(x0, y0, dx, dy, largo, alza, n, fase=0.0, onda=0.008):
+    """Trazo que avanza pegado a la coronilla y, si se sale por atrás o por un lado, baja por esa cara."""
+    pts = []
+    for i in range(n):
+        t = i / (n - 1); s_ = largo * t
+        qx, qy = x0 + dx * s_, y0 + dy * s_
+        h = 0.018 + alza * math.sin(min(t / 0.45, 1) * math.pi / 2) * (1 - 0.6 * t)
+        z = TOP + h + onda * math.sin(t * math.pi * 3 + fase)
+        if qy > 0.79:
+            o = qy - 0.79; qy = 0.79 + h; z = min(z, TOP - o)
+        if abs(qx) > 0.86:
+            o = abs(qx) - 0.86; qx = math.copysign(0.86 + h, qx); z = min(z, TOP - o)
+        pts.append((qx, qy, z))
+    return pts
+
+def _bezier(p0, p1, p2, p3, n):
+    pts = []
+    for i in range(n):
+        t = i / (n - 1); a = (1 - t) ** 3; b = 3 * (1 - t) ** 2 * t; c = 3 * (1 - t) * t * t; d = t ** 3
+        pts.append(tuple(a * p0[k] + b * p1[k] + c * p2[k] + d * p3[k] for k in range(3)))
+    return pts
+
+def _lados_cortos(rnd, largo, densidad, z_min=1.0, z_nuca=0.75):
+    """Pelo corto (degradado) en los lados y la nuca: hebras cortas que bajan pegadas a la cara."""
+    trazos = []
     for sx in (-1, 1):
-        caja('pelo_lado', (0.08, 1.0, 0.55 if est != 'rizado' else 0.75), (sx * 0.9, 0.22, 1.32), PELO, cabeza, bisel=0.03)
+        for _ in range(densidad):
+            y = rnd.uniform(-0.6, 0.78); z = rnd.uniform(z_min, TOP - 0.02)
+            if z < 1.12 and y < -0.35:
+                continue
+            l_ = largo * rnd.uniform(0.7, 1.2)
+            trazos.append([(sx * (0.885 + 0.008 * i), y + 0.25 * l_ * i / 3, z - l_ * i / 3) for i in range(4)])
+    for _ in range(densidad):
+        x = rnd.uniform(-0.84, 0.84); z = rnd.uniform(z_nuca, TOP - 0.02)
+        l_ = largo * rnd.uniform(0.7, 1.2)
+        trazos.append([(x, 0.815 + 0.008 * i, z - l_ * i / 3) for i in range(4)])
+    return trazos
+
+def pelo(s, cabeza, PELO, rnd):
+    """Pelo de hebras. La cabeza ocupa x ±0.88, y ±0.81 (frente en -y), z 0..1.62."""
+    est = s['peinado']
+    HEBRA = mat_pelo(f"hebra_{s['nombre']}", s.get('melanina', 0.88))
+    # Base delgada y oscura bajo las hebras (simula el cuero cabelludo cubierto); no agrega volumen
+    caja('pelo_base', (1.78, 1.64, 0.03), (0, 0.02, TOP + 0.005), PELO, cabeza, bisel=0.012)
+    caja('pelo_nuca', (1.76, 0.03, 0.9), (0, 0.81, 1.17), PELO, cabeza, bisel=0.012)
+    for sx in (-1, 1):
+        caja('pelo_lado', (0.03, 1.2, 0.58), (sx * 0.882, 0.12, 1.3), PELO, cabeza, bisel=0.012)
 
     if est == 'copete':
-        # Raya al lado (x = -0.42); el pelo sube en la frente y se peina hacia atrás y hacia la derecha
+        # Raya al lado (x = -0.42). Volumen moderado: sube ~0.22 en la frente y se peina hacia atrás y a la derecha
         raya = -0.42
-        for ix in range(8):
-            for iy in range(6):
-                x = -0.78 + ix * 0.22 + rnd.uniform(-0.03, 0.03); y = -0.66 + iy * 0.26 + rnd.uniform(-0.03, 0.03)
-                if abs(x - raya) < 0.06:
-                    continue
-                frente = max(0.0, (0.1 - y) / 0.8)
-                if x > raya:
-                    d = (0.32 + 0.25 * frente, 1.0, 0.45 * frente - 0.12)
-                else:
-                    d = (-0.55, 0.75, -0.25)
-                mechon('mechon', rnd.uniform(0.5, 0.68), rnd.uniform(0.26, 0.32), rnd.uniform(0.12, 0.15),
-                       (x, y, 1.72 + 0.16 * frente + rnd.uniform(0, 0.04)), d, (0, 0, 1), PELO, cabeza,
-                       curva=-rnd.uniform(0.35, 0.6), giro=rnd.uniform(-0.15, 0.15))
-        # Copete delantero: mechones grandes que suben desde la frente
-        for k in range(6):
-            x = raya + 0.14 + k * 0.2
-            mechon('copete', rnd.uniform(0.62, 0.75), 0.3, 0.17, (x, -0.8, 1.66 + k * 0.012),
-                   (0.28 + k * 0.03, 0.55, 0.85), (0, -0.4, 1), PELO, cabeza, curva=-0.75, giro=rnd.uniform(-0.1, 0.1))
-        for k in range(2):
-            mechon('copete_izq', 0.45, 0.26, 0.14, (raya - 0.12 - k * 0.2, -0.8, 1.64), (-0.45, 0.6, 0.55), (0, -0.4, 1),
-                   PELO, cabeza, curva=-0.6)
+        trazos, ids, guias, celdas = [], [], [], {}
+        def ruta(x0, y0, z0, desde_frente):
+            if x0 > raya:
+                dx = 0.35 + 0.25 * (x0 - raya)
+                def borde(x, z):
+                    # Pasado el borde derecho, el pelo baja por el lado en vez de seguir en el aire
+                    return (min(x, 0.9), z - max(0.0, x - 0.86) * 0.9)
+                if desde_frente:
+                    x2, z2 = borde(x0 + dx * 0.45, TOP + 0.2); x3, z3 = borde(x0 + dx * 0.8, TOP + 0.07)
+                    return (x0, y0, z0), (x0 + dx * 0.08, -0.9, TOP + 0.24), (x2, -0.3, z2), (x3, 0.45, z3)
+                alto = 0.07 + 0.12 * max(0.0, (0.2 - y0) / 0.95)
+                x2, z2 = borde(x0 + dx * 0.45, TOP + alto); x3, z3 = borde(x0 + dx * 0.75, TOP + 0.03)
+                return (x0, y0, TOP), (min(x0 + dx * 0.15, 0.9), y0 + 0.12, TOP + alto + 0.04), (x2, y0 + 0.5, z2), (x3, y0 + 0.85, z3)
+            # Lado izquierdo de la raya: corto, cae hacia el lado
+            return (x0, y0, TOP if not desde_frente else z0), (x0 - 0.12, y0 + 0.05, TOP + 0.11), (x0 - 0.35, y0 + 0.12, TOP + 0.07), (-0.9, y0 + 0.18, TOP - 0.1)
+        def agregar(x0, y0, z0, desde_frente):
+            celda = (round(x0 / 0.1), round(y0 / 0.12) if not desde_frente else -99, x0 > raya)
+            if celda not in celdas:
+                celdas[celda] = len(guias)
+                gx = celda[0] * 0.1; gy = celda[1] * 0.12 if not desde_frente else y0
+                guias.append(_bezier(*ruta(gx, gy, z0, desde_frente), 14))
+            ids.append(celdas[celda])
+            p0, p1, p2, p3 = ruta(x0, y0, z0, desde_frente)
+            j = lambda p: (p[0] + rnd.uniform(-0.02, 0.02), p[1] + rnd.uniform(-0.02, 0.02), p[2] + rnd.uniform(-0.015, 0.015))
+            trazos.append(_bezier(p0, j(p1), j(p2), j(p3), 14))
+        for _ in range(3600):
+            x0 = rnd.uniform(-0.82, 0.82); y0 = rnd.uniform(-0.74, 0.74)
+            if abs(x0 - raya) > 0.03:
+                agregar(x0, y0, TOP, False)
+        for _ in range(1100):
+            x0 = rnd.uniform(-0.82, 0.82)
+            if abs(x0 - raya) > 0.03:
+                agregar(x0, -0.815, rnd.uniform(1.47, 1.6), True)
+        hebras('pelo_arriba', _agrupar(trazos, guias, ids, 0.5), 0.012, 0.005, HEBRA, cabeza)
+        hebras('pelo_lados', _lados_cortos(rnd, 0.07, 1800), 0.009, 0.004, HEBRA, cabeza)
 
     if est == 'rizado':
-        # Rizos: mechones cortos muy curvados en capas
-        for _ in range(110):
-            x = rnd.uniform(-0.86, 0.86); y = rnd.uniform(-0.78, 0.8)
-            z = 1.66 + rnd.uniform(0, 0.32) * (1 - abs(x) * 0.35)
-            d = Vector((rnd.uniform(-1, 1), rnd.uniform(-1, 1), rnd.uniform(-0.2, 0.8)))
-            mechon('rizo', rnd.uniform(0.24, 0.34), rnd.uniform(0.18, 0.24), rnd.uniform(0.12, 0.15), (x, y, z), d,
-                   (rnd.uniform(-0.3, 0.3), rnd.uniform(-0.3, 0.3), 1), PELO, cabeza,
-                   curva=rnd.choice((-1, 1)) * rnd.uniform(1.6, 2.6), giro=rnd.uniform(-0.6, 0.6))
+        # Rizos en espiral agrupados en bucles
+        trazos = []
+        centros = []
+        for ix in range(14):
+            for iy in range(13):
+                centros.append(((-0.82 + ix * 0.126, -0.74 + iy * 0.123, TOP), (0, 0, 1)))
         for sx in (-1, 1):
-            for _ in range(14):
-                y = rnd.uniform(-0.45, 0.8); z = rnd.uniform(1.15, 1.65)
-                mechon('rizo_lado', rnd.uniform(0.22, 0.3), 0.2, 0.13, (sx * 0.93, y, z),
-                       (sx * 0.4, rnd.uniform(-1, 1), rnd.uniform(-1, 0.5)), (sx, 0, 0.3), PELO, cabeza,
-                       curva=rnd.choice((-1, 1)) * rnd.uniform(1.6, 2.4))
-        for k in range(8):
-            x = -0.72 + k * 0.2
-            mechon('rizo_frente', 0.26, 0.2, 0.13, (x, -0.8, 1.62 + rnd.uniform(0, 0.08)),
-                   (rnd.uniform(-0.5, 0.5), -0.3, 0.9), (0, -1, 0.4), PELO, cabeza, curva=rnd.uniform(1.8, 2.5))
+            for iy in range(10):
+                for iz in range(5):
+                    centros.append(((sx * 0.88, -0.5 + iy * 0.13, 1.04 + iz * 0.12), (sx, 0, 0)))
+        for ix in range(13):
+            for iz in range(6):
+                centros.append(((-0.8 + ix * 0.133, 0.81, 0.86 + iz * 0.13), (0, 1, 0)))
+        for ix in range(8):
+            centros.append(((-0.6 + ix * 0.17, -0.8, TOP - 0.02), (0, -0.6, 0.8)))
+        for (cx, cy, cz), nrm in centros:
+            n_ = Vector(nrm).normalized()
+            eje = (n_ * 0.75 + Vector((0, 0, 0.45)) + Vector((rnd.uniform(-0.3, 0.3), rnd.uniform(-0.3, 0.3), 0))).normalized()
+            u = eje.cross(Vector((0.3, 0.5, 0.8))).normalized(); w_ = eje.cross(u)
+            largo = rnd.uniform(0.4, 0.55); R = rnd.uniform(0.05, 0.07); vueltas = rnd.uniform(2.6, 3.6); fase = rnd.uniform(0, 6.3)
+            for _ in range(10):
+                off = Vector((rnd.uniform(-0.03, 0.03), rnd.uniform(-0.03, 0.03), rnd.uniform(-0.03, 0.03)))
+                off -= n_ * off.dot(n_)
+                raiz = Vector((cx, cy, cz)) + off
+                pts = []
+                for i in range(24):
+                    t = i / 23
+                    r = R * (0.5 + 0.5 * t)
+                    ang = fase + 2 * math.pi * vueltas * t + rnd.uniform(-0.05, 0.05)
+                    p = raiz + eje * (largo * t) + (u * math.cos(ang) + w_ * math.sin(ang)) * r - (u * math.cos(fase) + w_ * math.sin(fase)) * R * 0.5
+                    pts.append(tuple(p))
+                trazos.append(pts)
+        hebras('rizos', trazos, 0.012, 0.006, HEBRA, cabeza)
 
     if est == 'corto':
-        # Corte corto y ordenado: mechones cortos peinados hacia adelante y arriba
-        for ix in range(8):
-            for iy in range(6):
-                x = -0.76 + ix * 0.217 + rnd.uniform(-0.02, 0.02); y = -0.62 + iy * 0.27
-                mechon('corto', rnd.uniform(0.3, 0.38), 0.24, 0.1, (x, y, 1.7 + rnd.uniform(0, 0.03)),
-                       (rnd.uniform(-0.1, 0.1), -1.0, 0.25), (0, 0, 1), PELO, cabeza, curva=rnd.uniform(0.2, 0.35))
-        for k in range(7):
-            mechon('corto_frente', 0.24, 0.24, 0.11, (-0.66 + k * 0.22, -0.74, 1.66), (0, -0.6, 0.8), (0, -0.5, 1),
-                   PELO, cabeza, curva=0.3)
+        # Corte corto ordenado: arriba peinado hacia arriba y adelante; lados en degradado
+        trazos, ids, guias, celdas = [], [], [], {}
+        for _ in range(3800):
+            x0 = rnd.uniform(-0.82, 0.82); y0 = rnd.uniform(-0.8, 0.72)
+            largo = rnd.uniform(0.2, 0.27)
+            celda = (round(x0 / 0.07), round(y0 / 0.07))
+            def trazo(x, y, l_):
+                return [(x, y - 0.35 * l_ * t, TOP + 0.012 + l_ * (0.85 * t - 0.35 * t * t)) for t in [i / 7 for i in range(8)]]
+            if celda not in celdas:
+                celdas[celda] = len(guias); guias.append(trazo(celda[0] * 0.07, celda[1] * 0.07, 0.16))
+            ids.append(celdas[celda]); trazos.append(trazo(x0, y0, largo))
+        frente = [_bezier((x, -0.815, z), (x, -0.86, TOP + 0.06), (x, -0.8, TOP + 0.17), (x + rnd.uniform(-0.03, 0.03), -0.7, TOP + 0.21), 8)
+                  for x, z in [(rnd.uniform(-0.82, 0.82), rnd.uniform(1.5, 1.6)) for _ in range(700)]]
+        hebras('pelo_arriba', _agrupar(trazos, guias, ids, 0.35) + frente, 0.011, 0.005, HEBRA, cabeza)
+        hebras('pelo_lados', _lados_cortos(rnd, 0.05, 1800), 0.009, 0.004, HEBRA, cabeza)
 
-def barba(cabeza, PELO):
-    """Barba de candado delgada: línea por la mandíbula, bigote fino y mosca bajo el labio."""
-    caja('barba_menton', (1.3, 0.08, 0.11), (0, -0.8, 0.07), PELO, cabeza, bisel=0.03)
+def barba(cabeza, BARBA):
+    """Barba de candado delgada en bloques: línea por la mandíbula, bigote fino y mosca bajo el labio."""
+    caja('barba_menton', (1.3, 0.08, 0.11), (0, -0.8, 0.07), BARBA, cabeza, bisel=0.03)
     for sx in (-1, 1):
-        caja('barba_lado', (0.06, 0.5, 0.52), (sx * 0.895, -0.45, 0.38), PELO, cabeza, rot=(0.4, 0, 0), bisel=0.02)
-        caja('barba_quijada', (0.3, 0.08, 0.1), (sx * 0.7, -0.8, 0.15), PELO, cabeza, rot=(0, sx * 0.5, 0), bisel=0.03)
-        caja('bigote', (0.22, 0.04, 0.04), (sx * 0.13, -0.835, 0.54), PELO, cabeza, rot=(0, sx * 0.12, 0), bisel=0.015)
-    caja('mosca', (0.1, 0.04, 0.08), (0, -0.82, 0.18), PELO, cabeza, bisel=0.02)
+        caja('barba_lado', (0.06, 0.5, 0.52), (sx * 0.895, -0.45, 0.38), BARBA, cabeza, rot=(0.4, 0, 0), bisel=0.02)
+        caja('barba_quijada', (0.3, 0.08, 0.1), (sx * 0.7, -0.8, 0.15), BARBA, cabeza, rot=(0, sx * 0.5, 0), bisel=0.03)
+        caja('bigote', (0.22, 0.04, 0.04), (sx * 0.13, -0.835, 0.54), BARBA, cabeza, rot=(0, sx * 0.12, 0), bisel=0.015)
+    caja('mosca', (0.1, 0.04, 0.08), (0, -0.82, 0.18), BARBA, cabeza, bisel=0.02)
 
 def ropa(s, torso, w, mats):
     """Torso vestido según el atuendo; devuelve los materiales de manga y puño."""
@@ -331,7 +450,7 @@ def personaje(s, x, y, giro, pose):
     rnd = random.Random(s['semilla'])
     PIEL = mat(f"piel_{s['nombre']}", s['piel'], 0.5, sss=0.15)
     PIEL2 = mat(f"piel2_{s['nombre']}", s['piel'], 0.55, sss=0.1, factor=0.82)
-    PELO = mat(f"pelo_{s['nombre']}", s['pelo'], 0.38, sheen=0.5, ruido=0.2)
+    PELO = mat(f"pelo_{s['nombre']}", s['pelo'], 0.6, ruido=0.2)
     IRIS = mat(f"iris_{s['nombre']}", s['ojos'], 0.2)
     w = s['ancho']
     PANT, PANT2, COST = PANTALONES[s['pantalon']]
@@ -420,7 +539,7 @@ def personaje(s, x, y, giro, pose):
 
     pelo(s, cabeza, PELO, rnd)
     if s.get('barba'):
-        barba(cabeza, PELO)
+        barba(cabeza, mat(f"barba_{s['nombre']}", s['pelo'], 0.38, sheen=0.5, ruido=0.2))
     if s.get('gafas'):
         for sx in (-1, 1):
             cx, cz = sx * 0.4, 0.98
@@ -523,6 +642,8 @@ scene.cycles.samples = MUESTRAS
 scene.cycles.use_adaptive_sampling = True
 scene.cycles.use_denoising = True
 scene.cycles.max_bounces = 6
+scene.cycles_curves.shape = 'THICK'
+scene.cycles_curves.subdivisions = 2
 scene.view_settings.view_transform = 'AgX'
 scene.view_settings.look = 'AgX - Medium High Contrast'
 scene.render.filepath = SALIDA
