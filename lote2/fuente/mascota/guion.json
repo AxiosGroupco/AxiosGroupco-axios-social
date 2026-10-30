@@ -1,0 +1,41 @@
+{
+  "titulo": "¿Gana poquito y no declara?",
+  "lineas": [
+    {
+      "voz": "¿Usted no declara renta porque gana poquito?",
+      "sub": "¿No declara renta porque gana poquito?",
+      "gesto": "point",
+      "panel": "sueldo"
+    },
+    {
+      "voz": "Ajá. Pero la tarjeta de crédito, echando humo.",
+      "sub": "Ajá. Pero la tarjeta de crédito, echando humo.",
+      "gesto": "skeptic",
+      "panel": "tarjeta"
+    },
+    {
+      "voz": "Si en dos mil veintiséis gastó con tarjeta más de mil cuatrocientas u ve te,",
+      "sub": "En 2026 gastó con tarjeta más de 1.400 UVT ($73.323.600)…",
+      "gesto": "shock",
+      "panel": "cifra"
+    },
+    {
+      "voz": "le toca declarar. Así el sueldo sea poquito.",
+      "sub": "…le toca declarar. Así el sueldo sea poquito.",
+      "gesto": "shrug",
+      "panel": "letoca"
+    },
+    {
+      "voz": "Y pasa lo mismo con compras, consignaciones e inversiones.",
+      "sub": "Lo mismo con compras, consignaciones e inversiones.",
+      "gesto": "list",
+      "panel": "lista"
+    },
+    {
+      "voz": "Escríbanos RENTA por wasap, y le decimos si le toca. Sin regaños.",
+      "sub": "Escríbanos RENTA por WhatsApp y le decimos si le toca.",
+      "gesto": "thumbs",
+      "panel": "cta"
+    }
+  ]
+}

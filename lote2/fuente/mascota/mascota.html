@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Mascota Axios: video educativo</title>
+<style>
+  @font-face { font-family: "Poppins"; src: url("../../../web/assets/fonts/poppins-400.woff2") format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Poppins"; src: url("../../../web/assets/fonts/poppins-600.woff2") format("woff2"); font-weight: 600; }
+  @font-face { font-family: "Poppins"; src: url("../../../web/assets/fonts/poppins-700.woff2") format("woff2"); font-weight: 700; }
+  :root { --navy-950: #071726; --navy-900: #0b1f33; --navy-800: #0d2c46; --teal-600: #13808a; --teal-300: #4fc3cf; --red-600: #c8102e; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { width: 1080px; height: 1920px; overflow: hidden; font-family: "Poppins", sans-serif; color: #fff;
+         background: radial-gradient(1200px 900px at 50% 38%, #12466a 0%, var(--navy-800) 45%, var(--navy-950) 100%); }
+  #grid { position: absolute; inset: 0; opacity: .14;
+          background-image: linear-gradient(#4fc3cf 1px, transparent 1px), linear-gradient(90deg, #4fc3cf 1px, transparent 1px);
+          background-size: 72px 72px; mask-image: linear-gradient(#000 0%, transparent 75%); }
+  #bar { position: absolute; top: 0; left: 0; height: 10px; width: 0; background: linear-gradient(90deg, var(--red-600), var(--teal-300)); z-index: 5; }
+  .logo { position: absolute; left: 60px; top: 90px; background: #fff; border-radius: 22px; padding: 14px 22px; z-index: 4; }
+  .logo img { height: 52px; display: block; }
+  #title { position: absolute; left: 60px; right: 60px; top: 205px; font-size: 76px; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; z-index: 4; text-shadow: 0 6px 18px rgba(0,0,0,.35); }
+  #title span { color: var(--teal-300); }
+
+  /* Pantalla de fondo con el tema de cada frase */
+  .panel { position: absolute; left: 90px; right: 90px; top: 385px; height: 470px; border-radius: 40px;
+           background: rgba(7,23,38,.72); border: 3px solid rgba(79,195,207,.35); box-shadow: 0 30px 80px rgba(0,0,0,.35);
+           display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; z-index: 1; }
+  .k { font-size: 34px; font-weight: 700; letter-spacing: .16em; color: var(--teal-300); }
+  .huge { font-size: 120px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; }
+  .small { font-size: 36px; color: #c9d6e3; margin-top: 14px; }
+  .chip { display: inline-block; font-size: 36px; font-weight: 600; padding: 12px 28px; border-radius: 40px; background: rgba(79,195,207,.16); border: 2px solid rgba(79,195,207,.5); margin-top: 26px; }
+  .card { width: 620px; height: 380px; border-radius: 34px; position: relative; text-align: left; padding: 40px 44px;
+          background: linear-gradient(135deg, #c8102e 0%, #7a1730 45%, #0b1f33 100%); box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+  .card .chipcc { width: 110px; height: 82px; border-radius: 16px; background: linear-gradient(135deg, #f2d48a, #b88a2e); }
+  .card .numcc { font-size: 46px; font-weight: 600; letter-spacing: .12em; margin-top: 70px; }
+  .card .namecc { font-size: 26px; letter-spacing: .2em; color: #f4c9cf; margin-top: 10px; }
+  .smoke { position: absolute; border-radius: 50%; background: rgba(210,220,230,.55); filter: blur(6px); }
+  .stamp { font-size: 104px; font-weight: 700; color: #ff4d5e; border: 12px solid #ff4d5e; border-radius: 28px; padding: 10px 46px; line-height: 1.1; transform: rotate(-8deg); }
+  .row { font-size: 38px; font-weight: 600; background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.16); border-radius: 24px; padding: 14px 30px; margin: 8px 0; width: 800px; display: flex; justify-content: space-between; opacity: 0; }
+  .row b { color: var(--teal-300); }
+  .cta { background: #fff; color: #0b1f33; border-radius: 34px; padding: 40px 56px; }
+  .cta .kw { display: inline-block; background: var(--teal-600); color: #fff; border-radius: 18px; padding: 4px 24px; }
+
+  #stage { position: absolute; inset: 0; z-index: 2; }
+
+  /* Subtítulos con la palabra actual resaltada */
+  #sub { position: absolute; left: 70px; right: 70px; top: 885px; z-index: 4; text-align: center; font-size: 50px; font-weight: 700; line-height: 1.25;
+         padding: 22px 30px; border-radius: 28px; background: rgba(7,23,38,.78); }
+  #sub .w { opacity: .55; }
+  #sub .w.on { opacity: 1; color: var(--teal-300); }
+  #sub .w.done { opacity: 1; }
+</style>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }</script>
+</head>
+<body>
+<div id="grid"></div>
+<div id="bar"></div>
+<div class="logo"><img src="../../../web/assets/img/logo-axios.png" alt=""></div>
+<div id="title"></div>
+
+<div class="panel" data-panel="sueldo">
+  <div class="k">SU SUELDO</div>
+  <div class="huge">"Poquito"</div>
+  <div class="small">(según usted)</div>
+</div>
+<div class="panel" data-panel="tarjeta">
+  <div class="card"><div class="chipcc"></div><div class="numcc">**** **** 2026</div><div class="namecc">CONSUMOS: MUCHOS</div></div>
+  <div id="smokes"></div>
+</div>
+<div class="panel" data-panel="cifra">
+  <div class="k">TOPE 2026 · TARJETA DE CRÉDITO</div>
+  <div class="huge" id="count">$0</div>
+  <div class="chip">1.400 UVT</div>
+</div>
+<div class="panel" data-panel="letoca">
+  <div class="stamp" id="stamp">LE TOCA<br>DECLARAR</div>
+</div>
+<div class="panel" data-panel="lista">
+  <div class="k" style="margin-bottom:10px">TAMBIÉN CUENTAN</div>
+  <div class="row"><span>Compras y consumos</span><b>&gt; 1.400 UVT</b></div>
+  <div class="row"><span>Consignaciones</span><b>&gt; 1.400 UVT</b></div>
+  <div class="row"><span>Inversiones</span><b>&gt; 1.400 UVT</b></div>
+</div>
+<div class="panel" data-panel="cta">
+  <div class="cta">
+    <div style="font-size:30px;font-weight:600;letter-spacing:.14em;color:#64748b">ESCRÍBANOS POR WHATSAPP</div>
+    <div style="font-size:84px;font-weight:700;margin-top:6px"><span class="kw">RENTA</span></div>
+    <div style="font-size:80px;font-weight:700">317 452 9094</div>
+  </div>
+  <div class="small" style="font-size:26px">Información general, vigente a noviembre de 2026</div>
+</div>
+
+<div id="stage"></div>
+<div id="sub"></div>
+
+<script type="module">
+import * as THREE from 'three';
+
+const W = 1080, H = 1920;
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H);
+renderer.setClearColor(0x000000, 0);
+document.getElementById('stage').appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(26, W / H, 0.1, 100);
+camera.position.set(0, 2.2, 27);
+camera.lookAt(0, 2.2, 0);
+
+scene.add(new THREE.HemisphereLight(0xdff6ff, 0x1a2a3a, 1.1));
+const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(-4, 7, 9); scene.add(key);
+const rim = new THREE.DirectionalLight(0x4fc3cf, 1.4); rim.position.set(5, 4, -6); scene.add(rim);
+
+const mat = c => new THREE.MeshLambertMaterial({ color: c, flatShading: true });
+const box = (w, h, d, c, x = 0, y = 0, z = 0, parent) => {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c));
+  m.position.set(x, y, z); (parent || scene).add(m); return m;
+};
+
+// Mascota de Axios: contador en bloques, con traje azul, corbata verde azulado y gafas.
+const SKIN = 0xe3a982, SKIN2 = 0xd0946c, NAVY = 0x123a5a, HAIR = 0x1d2433;
+const axi = new THREE.Group(); scene.add(axi); axi.position.y = -2.79;
+const torso = new THREE.Group(); axi.add(torso);
+box(2.6, 2.8, 1.3, NAVY, 0, 0, 0, torso);
+box(0.9, 1.5, 0.04, 0xffffff, 0, 0.6, 0.66, torso);
+box(0.34, 1.35, 0.06, 0x13808a, 0, 0.42, 0.7, torso);
+box(0.42, 0.26, 0.08, 0x0f6f78, 0, 1.18, 0.71, torso);
+box(0.2, 0.2, 0.06, 0xc8102e, -0.85, 0.95, 0.68, torso);
+box(0.7, 0.4, 0.7, SKIN2, 0, 1.55, 0, torso);
+
+const head = new THREE.Group(); head.position.set(0, 1.7, 0); torso.add(head);
+box(2.0, 1.85, 1.75, SKIN, 0, 0.95, 0, head);
+box(2.1, 0.5, 1.85, HAIR, 0, 2.0, -0.02, head);
+box(2.1, 0.75, 0.4, HAIR, 0, 1.6, -0.75, head);
+box(0.2, 0.7, 1.2, HAIR, -1.04, 1.45, -0.25, head);
+box(0.2, 0.7, 1.2, HAIR, 1.04, 1.45, -0.25, head);
+box(0.26, 0.36, 0.24, SKIN2, 0, 0.72, 0.96, head);
+const eyes = [], pupils = [], brows = [];
+for (const sx of [-1, 1]) {
+  eyes.push(box(0.42, 0.36, 0.05, 0xffffff, sx * 0.45, 1.08, 0.88, head));
+  pupils.push(box(0.18, 0.22, 0.06, 0x14202c, sx * 0.42, 1.05, 0.92, head));
+  brows.push(box(0.5, 0.11, 0.08, HAIR, sx * 0.45, 1.42, 0.9, head));
+  // Montura de las gafas
+  box(0.62, 0.06, 0.05, 0x0b1f33, sx * 0.45, 1.3, 0.95, head);
+  box(0.62, 0.06, 0.05, 0x0b1f33, sx * 0.45, 0.86, 0.95, head);
+  box(0.06, 0.5, 0.05, 0x0b1f33, sx * 0.76, 1.08, 0.95, head);
+  box(0.06, 0.5, 0.05, 0x0b1f33, sx * 0.14, 1.08, 0.95, head);
+}
+box(0.24, 0.06, 0.05, 0x0b1f33, 0, 1.12, 0.95, head);
+const mouth = box(0.62, 0.1, 0.06, 0x5a1a22, 0, 0.38, 0.88, head);
+
+const arm = sx => {
+  const g = new THREE.Group(); g.position.set(sx * 1.55, 1.05, 0); torso.add(g);
+  box(0.62, 2.0, 0.62, NAVY, 0, -0.95, 0, g);
+  box(0.66, 0.14, 0.66, 0xffffff, 0, -1.98, 0, g);
+  box(0.56, 0.56, 0.56, SKIN, 0, -2.3, 0, g);
+  const thumb = box(0.2, 0.42, 0.2, SKIN, sx * -0.3, -2.0, 0.12, g); thumb.visible = false;
+  return { g, thumb };
+};
+const R = arm(-1), L = arm(1);
+
+// Poses: brazos (x adelante, z lateral), cabeza, cejas y ojos.
+const POSES = {
+  idle:    { R: [0, -0.12], L: [0, 0.12], hx: 0, hz: 0, brow: [0, 0], eye: 1 },
+  point:   { R: [-1.45, -0.1], L: [0, 0.12], hx: 0.05, hz: 0.06, brow: [0.08, 0.08], eye: 1.05 },
+  skeptic: { R: [-0.95, 0.85], L: [-0.95, -0.85], hx: 0, hz: 0.14, brow: [-0.06, 0.16], eye: 0.6 },
+  shock:   { R: [0, -2.55], L: [0, 2.55], hx: -0.12, hz: 0, brow: [0.2, 0.2], eye: 1.4 },
+  shrug:   { R: [-0.35, -0.95], L: [-0.35, 0.95], hx: 0, hz: -0.16, brow: [0.12, 0.12], eye: 1 },
+  list:    { R: [-0.1, -2.35], L: [0, 0.12], hx: 0, hz: 0.08, brow: [0.06, 0.06], eye: 1 },
+  thumbs:  { R: [-1.1, -0.45], L: [0, 2.3], hx: 0.04, hz: -0.05, brow: [0.1, 0.1], eye: 1.05 },
+};
+const lerp = (a, b, k) => a + (b - a) * k;
+const smooth = x => x * x * (3 - 2 * x);
+const clamp = x => Math.max(0, Math.min(1, x));
+const mix = (a, b, k) => ({
+  R: [lerp(a.R[0], b.R[0], k), lerp(a.R[1], b.R[1], k)], L: [lerp(a.L[0], b.L[0], k), lerp(a.L[1], b.L[1], k)],
+  hx: lerp(a.hx, b.hx, k), hz: lerp(a.hz, b.hz, k), brow: [lerp(a.brow[0], b.brow[0], k), lerp(a.brow[1], b.brow[1], k)], eye: lerp(a.eye, b.eye, k),
+});
+
+// Humo de la tarjeta
+const smokes = document.getElementById('smokes');
+for (let i = 0; i < 9; i++) { const s = document.createElement('div'); s.className = 'smoke'; smokes.appendChild(s); }
+
+let G, T;
+window.setup = (guion, tiempos) => {
+  G = guion; T = tiempos;
+  window.DURATION = T.duracion;
+  document.getElementById('title').innerHTML = G.titulo.replace('poquito', '<span>poquito</span>');
+};
+
+const fmt = n => '$' + Math.round(n).toLocaleString('es-CO');
+
+window.render = t => {
+  document.getElementById('bar').style.width = (100 * t / T.duracion) + '%';
+  const frame = Math.min(T.boca.length - 1, Math.round(t * 30));
+  const boca = T.boca[frame] || 0;
+
+  // Línea actual (se mantiene la última hasta que empiece la siguiente)
+  let i = 0;
+  for (let k = 0; k < T.lineas.length; k++) if (t >= T.lineas[k].inicio - 0.12) i = k;
+  const li = T.lineas[i], linea = G.lineas[i];
+  const prev = i > 0 ? POSES[G.lineas[i - 1].gesto] : POSES.idle;
+  const pose = mix(prev, POSES[linea.gesto], smooth(clamp((t - li.inicio + 0.12) / 0.4)));
+
+  // Mascota
+  const bob = Math.sin(t * 2.1) * 0.04;
+  torso.position.y = bob;
+  torso.rotation.y = Math.sin(t * 0.9) * 0.08;
+  head.rotation.x = pose.hx + boca * 0.06 + Math.sin(t * 3.1) * 0.015;
+  head.rotation.z = pose.hz + Math.sin(t * 1.7) * 0.02;
+  head.rotation.y = Math.sin(t * 0.7) * 0.06;
+  R.g.rotation.set(pose.R[0], 0, pose.R[1] + Math.sin(t * 2.3) * 0.03);
+  const wave = linea.gesto === 'thumbs' ? Math.sin(t * 9) * 0.25 : Math.sin(t * 2.0) * 0.03;
+  L.g.rotation.set(pose.L[0], 0, pose.L[1] + wave);
+  R.thumb.visible = linea.gesto === 'thumbs';
+  const blink = (t % 3.3) < 0.12 ? 0.12 : 1;
+  for (const e of eyes) e.scale.set(1, pose.eye * blink, 1);
+  for (const p of pupils) p.scale.set(1, Math.max(0.1, (pose.eye > 1.2 ? 0.8 : 1) * blink), 1);
+  brows[0].position.y = 1.42 + pose.brow[0]; brows[1].position.y = 1.42 + pose.brow[1];
+  brows[0].rotation.z = linea.gesto === 'skeptic' ? -0.18 : 0;
+  brows[1].rotation.z = linea.gesto === 'skeptic' ? 0.22 : 0;
+  mouth.scale.set(1 - boca * 0.15, 1 + boca * 3.6, 1);
+  mouth.position.y = 0.38 - boca * 0.12;
+  renderer.render(scene, camera);
+
+  // Pantalla del fondo
+  for (const p of document.querySelectorAll('.panel')) {
+    const on = p.dataset.panel === linea.panel;
+    const k = on ? smooth(clamp((t - li.inicio + 0.1) / 0.35)) : 0;
+    p.style.opacity = k;
+    p.style.transform = `translateY(${(1 - k) * 40}px) scale(${0.96 + 0.04 * k})`;
+  }
+  if (linea.panel === 'tarjeta') {
+    [...smokes.children].forEach((s, n) => {
+      const ph = ((t - li.inicio) * 0.7 + n / 9) % 1;
+      const size = 60 + ph * 120;
+      Object.assign(s.style, { width: size + 'px', height: size + 'px', left: (690 + Math.sin(n * 2.1 + t) * 50 - size / 2) + 'px',
+        top: (200 - ph * 230) + 'px', opacity: (1 - ph) * 0.8 });
+    });
+  }
+  if (linea.panel === 'cifra') document.getElementById('count').textContent = fmt(73323600 * smooth(clamp((t - li.inicio) / 1.4)));
+  if (linea.panel === 'letoca') {
+    const k = clamp((t - li.inicio) / 0.3);
+    document.getElementById('stamp').style.transform = `rotate(-8deg) scale(${k < 1 ? 1.8 - 0.8 * smooth(k) : 1})`;
+  }
+  if (linea.panel === 'lista') [...document.querySelectorAll('.row')].forEach((r, n) => {
+    const k = smooth(clamp((t - li.inicio - 0.25 - n * 0.55) / 0.35));
+    r.style.opacity = k; r.style.transform = `translateX(${(1 - k) * -80}px)`;
+  });
+
+  // Subtítulos: palabra actual en verde azulado
+  const words = linea.sub.split(' ');
+  const prog = clamp((t - li.inicio) / (li.fin - li.inicio));
+  const cur = Math.min(words.length - 1, Math.floor(prog * words.length));
+  document.getElementById('sub').innerHTML = words.map((w, n) =>
+    `<span class="w ${n === cur && t <= li.fin ? 'on' : (n < cur || t > li.fin ? 'done' : '')}">${w}</span>`).join(' ');
+};
+window.READY = true;
+</script>
+</body>
+</html>
