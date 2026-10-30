@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Video: ¿Le toca declarar renta en 2027?</title>
+<style>
+  @font-face { font-family: "Poppins"; src: url("../../web/assets/fonts/poppins-400.woff2") format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Poppins"; src: url("../../web/assets/fonts/poppins-600.woff2") format("woff2"); font-weight: 600; }
+  @font-face { font-family: "Poppins"; src: url("../../web/assets/fonts/poppins-700.woff2") format("woff2"); font-weight: 700; }
+  :root {
+    --navy-950: #071726; --navy-800: #0d2c46; --teal-600: #13808a; --teal-300: #4fc3cf;
+    --red-600: #c8102e; --on-dark: #e2e8f0; --on-dark-muted: #a9b8c9;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { width: 1080px; height: 1920px; overflow: hidden; font-family: "Poppins", sans-serif; color: #fff;
+         background: linear-gradient(165deg, var(--navy-950) 0%, var(--navy-800) 55%, #0c3a52 100%); }
+  #bg { position: absolute; inset: 0; }
+  #bar { position: absolute; top: 0; left: 0; height: 10px; width: 0; background: linear-gradient(90deg, var(--red-600), var(--teal-300)); }
+  .logo { position: absolute; left: 80px; top: 170px; background: #fff; border-radius: 26px; padding: 18px 28px; box-shadow: 0 16px 36px rgba(0,0,0,.3); }
+  .logo img { height: 64px; display: block; }
+  .a { position: absolute; left: 80px; right: 140px; opacity: 0; will-change: transform, opacity; }
+  .eyebrow { font-size: 32px; font-weight: 700; letter-spacing: .22em; color: var(--teal-300); display: flex; gap: 22px; align-items: center; }
+  .eyebrow::before { content: ""; width: 70px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--red-600), var(--teal-300)); }
+  .big { font-size: 150px; font-weight: 700; line-height: 1.02; letter-spacing: -0.025em; }
+  .mid { font-size: 64px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
+  .lbl { font-size: 40px; font-weight: 700; letter-spacing: .14em; color: var(--teal-300); }
+  .num { font-size: 136px; font-weight: 700; letter-spacing: -0.03em; color: #fff; }
+  .chip { display: inline-block; font-size: 38px; font-weight: 600; padding: 14px 30px; border-radius: 40px; background: rgba(79,195,207,.16); border: 2px solid rgba(79,195,207,.5); color: #dff6f8; }
+  .sub { font-size: 44px; line-height: 1.4; color: var(--on-dark); }
+  .note { font-size: 28px; line-height: 1.4; color: var(--on-dark-muted); }
+  .teal { color: var(--teal-300); }
+  .item { display: flex; align-items: center; gap: 30px; background: rgba(255,255,255,.07); border: 2px solid rgba(255,255,255,.14); border-radius: 28px; padding: 28px 34px; }
+  .item .dot { flex: none; width: 74px; height: 74px; border-radius: 50%; background: var(--teal-600); display: grid; place-items: center; font-size: 36px; font-weight: 700; }
+  .item.red .dot { background: var(--red-600); }
+  .item h3 { font-size: 46px; font-weight: 700; line-height: 1.15; }
+  .uno { font-size: 330px; font-weight: 700; line-height: 1; letter-spacing: -0.04em; color: var(--teal-300); transform-origin: left center; }
+  .card { background: #fff; color: #0b1f33; border-radius: 34px; padding: 42px 46px; box-shadow: 0 24px 60px rgba(0,0,0,.35); }
+  .card .k { font-size: 30px; font-weight: 600; letter-spacing: .16em; color: #64748b; }
+  .card .v { font-size: 84px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; }
+  .card .kw { display: inline-block; background: var(--teal-600); color: #fff; border-radius: 18px; padding: 6px 22px; }
+</style>
+</head>
+<body>
+<svg id="bg" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+  <g id="arrows">
+    <path d="M520 2100 L900 1260 L820 1210 L1060 1100 L1050 1360 L975 1310 L640 2100 Z" fill="#c8102e" fill-opacity=".18"/>
+    <path d="M700 2160 L1080 1320 L1000 1270 L1240 1160 L1230 1420 L1155 1370 L820 2160 Z" fill="#4fc3cf" fill-opacity=".12"/>
+  </g>
+</svg>
+<div id="bar"></div>
+<div class="logo"><img src="../../web/assets/img/logo-axios.png" alt=""></div>
+
+<!-- Escena 1 · gancho -->
+<div class="a eyebrow" style="top:470px" data-in="0.1" data-out="3.2">RENTA · AÑO GRAVABLE 2026</div>
+<div class="a big" style="top:560px" data-in="0.25" data-out="3.2">¿Le toca</div>
+<div class="a big teal" style="top:713px" data-in="0.5" data-out="3.2">declarar</div>
+<div class="a big teal" style="top:866px" data-in="0.7" data-out="3.2">renta</div>
+<div class="a big" style="top:1019px" data-in="0.9" data-out="3.2">en 2027?</div>
+<div class="a sub" style="top:1230px" data-in="1.4" data-out="3.2">Se define con lo que pase con su dinero hasta el 31 de diciembre de 2026.</div>
+
+<!-- Escena 2 · patrimonio -->
+<div class="a lbl" style="top:520px" data-in="3.4" data-out="7.4">SI SU PATRIMONIO BRUTO</div>
+<div class="a mid" style="top:590px" data-in="3.55" data-out="7.4">supera</div>
+<div class="a num" style="top:680px" data-in="3.6" data-out="7.4"><span data-count="235683000" data-start="3.6" data-dur="1.3">$0</span></div>
+<div class="a" style="top:880px" data-in="4.4" data-out="7.4"><span class="chip">4.500 UVT · a 31-dic-2026</span></div>
+<div class="a sub" style="top:1010px" data-in="5.0" data-out="7.4">Las deudas no se restan: casa, carro y ahorros suman completos.</div>
+
+<!-- Escena 3 · ingresos -->
+<div class="a lbl" style="top:520px" data-in="7.6" data-out="11.4">O SI SUS INGRESOS BRUTOS</div>
+<div class="a mid" style="top:590px" data-in="7.75" data-out="11.4">llegan a</div>
+<div class="a num" style="top:680px" data-in="7.8" data-out="11.4"><span data-count="73323600" data-start="7.8" data-dur="1.2">$0</span></div>
+<div class="a" style="top:880px" data-in="8.6" data-out="11.4"><span class="chip">1.400 UVT · en todo 2026</span></div>
+<div class="a sub" style="top:1010px" data-in="9.2" data-out="11.4">Salario, honorarios, arriendos, ventas e intereses: todo suma.</div>
+
+<div class="a note" style="top:1330px" data-in="3.4" data-out="11.4">UVT 2026: $52.374 · Resolución DIAN 000238 de 2025</div>
+
+<!-- Escena 4 · movimientos -->
+<div class="a mid" style="top:440px" data-in="11.6" data-out="15.8">También le obliga pasar de <span class="teal">$73.323.600</span> en:</div>
+<div class="a item" style="top:650px" data-in="12.0" data-out="15.8" data-from="left"><div class="dot">1</div><h3>Tarjeta de crédito</h3></div>
+<div class="a item" style="top:810px" data-in="12.35" data-out="15.8" data-from="left"><div class="dot">2</div><h3>Compras y consumos</h3></div>
+<div class="a item" style="top:970px" data-in="12.7" data-out="15.8" data-from="left"><div class="dot">3</div><h3>Consignaciones e inversiones</h3></div>
+<div class="a item red" style="top:1150px" data-in="13.2" data-out="15.8" data-from="left"><div class="dot">!</div><h3>O ser responsable de IVA</h3></div>
+
+<!-- Escena 5 · basta con uno -->
+<div class="a mid" style="top:500px" data-in="16.0" data-out="18.2">Basta con</div>
+<div class="a uno" style="top:590px" data-in="16.2" data-out="18.2" data-from="scale">UNO</div>
+<div class="a mid" style="top:930px" data-in="16.5" data-out="18.2">para quedar obligado.</div>
+<div class="a sub" style="top:1080px" data-in="16.9" data-out="18.2">Declarar tarde: sanción mínima de 10&nbsp;UVT ($523.740&nbsp;hoy).</div>
+
+<!-- Escena 6 · llamado a la acción -->
+<div class="a big" style="top:430px; font-size:120px" data-in="18.4">¿Le toca?</div>
+<div class="a mid" style="top:570px" data-in="18.55"><span class="teal">Revisemos</span> su caso</div>
+<div class="a card" style="top:720px" data-in="18.8" data-from="scale">
+  <div class="k">ESCRÍBANOS POR WHATSAPP</div>
+  <div class="v" style="margin-top:10px"><span class="kw">RENTA</span></div>
+  <div class="v" style="margin-top:6px">317 452 9094</div>
+</div>
+<div class="a sub" style="top:1150px" data-in="19.3">@axiosgroupsas</div>
+<div class="a note" style="top:1240px" data-in="19.5">Información general, vigente a noviembre de 2026. No reemplaza la revisión de su caso.</div>
+
+<script>
+  const clamp = x => Math.max(0, Math.min(1, x));
+  const easeOut = x => 1 - Math.pow(1 - x, 3);
+  const easeBack = x => { const c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+  const fmt = n => '$' + Math.round(n).toLocaleString('es-CO');
+  window.DURATION = 21.5;
+
+  window.render = t => {
+    document.getElementById('bar').style.width = (100 * t / window.DURATION) + '%';
+    document.getElementById('arrows').setAttribute('transform', `translate(0 ${-40 * t / window.DURATION * 3})`);
+    for (const el of document.querySelectorAll('[data-in]')) {
+      const tin = +el.dataset.in, tout = el.dataset.out ? +el.dataset.out : Infinity;
+      const pin = clamp((t - tin) / 0.45), pout = clamp((t - tout) / 0.35);
+      const from = el.dataset.from || 'up';
+      let tf = '';
+      if (from === 'up') tf = `translateY(${(1 - easeOut(pin)) * 70 - easeOut(pout) * 50}px)`;
+      if (from === 'left') tf = `translateX(${(1 - easeOut(pin)) * -140}px) translateY(${-easeOut(pout) * 50}px)`;
+      if (from === 'scale') tf = `scale(${pin < 1 ? 0.6 + 0.4 * easeBack(pin) : 1 - 0.05 * pout})`;
+      el.style.opacity = (easeOut(pin) * (1 - pout)).toFixed(3);
+      el.style.transform = tf;
+    }
+    for (const el of document.querySelectorAll('[data-count]')) {
+      const p = easeOut(clamp((t - +el.dataset.start) / +el.dataset.dur));
+      el.textContent = fmt(+el.dataset.count * p);
+    }
+  };
+  render(0);
+</script>
+</body>
+</html>
