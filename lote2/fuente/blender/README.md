@@ -17,8 +17,12 @@ blender -b -P mascotas.py -- --salida ../../mascotas/retrato_socio1.png --retrat
 
 ## Qué se puede cambiar en `mascotas.py`
 
-- `SOCIOS`: tono de piel, pelo, ojos, camisa, peinado (`ondulado`, `rizado`, `gorra`), gafas, cadena, texto de la camiseta.
-- `POSES`: brazos (hombro y codo), cabeza, cejas, `boca='picara'`, `guino`, `pulgar_arriba`, `calculadora`.
+- `SOCIOS`: tono de piel, pelo, ojos, atuendo (`camisa_vestir`, `buso`, `blazer`), pantalón (`chino`, `jean`, `gris`),
+  zapatos (`cuero_cafe`, `tenis`, `cuero_negro`), peinado (`copete`, `rizado`, `corto`), barba, gafas y cadena.
+- `pelo()`: cada peinado está hecho de mechones curvos (bloques biselados, doblados y suavizados).
+- `ropa()`: detalles de cada atuendo (capucha y cordones, bolsillo con símbolo AX y lapicero dorado, blazer con corbata y pin).
+- `POSES`: brazos (hombro y codo), cabeza, cejas, `guino`, `pulgar_arriba`, `calculadora`.
+- `ax-simbolo.png`: el símbolo AX recortado del logo, usado en el buso, el bolsillo y el pin.
 - Luces, fondo (ciclorama azul con el letrero AXIOS) y cámara al final del archivo.
 
 ## Privacidad
