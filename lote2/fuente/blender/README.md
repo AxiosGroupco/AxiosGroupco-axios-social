@@ -8,7 +8,7 @@ y ajustarla a mano en Blender 4.2 o posterior.
 ## Generar las imágenes
 
 ```bash
-blender -b -P mascotas.py -- --salida ../../mascotas/equipo.png --muestras 40 --blend mascotas.blend
+blender -b -P mascotas.py -- --salida ../../mascotas/equipo.png --muestras 48 --blend mascotas.blend
 blender -b -P mascotas.py -- --salida ../../mascotas/retrato_socio1.png --retrato 0 --muestras 40
 ```
 
@@ -17,13 +17,13 @@ blender -b -P mascotas.py -- --salida ../../mascotas/retrato_socio1.png --retrat
 
 ## Qué se puede cambiar en `mascotas.py`
 
-- `SOCIOS`: tono de piel, pelo, ojos, atuendo (`camisa_vestir`, `buso`, `blazer`), pantalón (`chino`, `jean`, `gris`),
-  zapatos (`cuero_cafe`, `tenis`, `cuero_negro`), peinado (`copete`, `rizado`, `corto`), barba, gafas y cadena.
-- `pelo()`: pelo realista de hebras (curvas de pelo de Blender con material Principled Hair): copete de lado con volumen moderado, rizos en espiral y corte corto peinado hacia arriba. La barba sigue en bloques.
-- `ropa()`: detalles de cada atuendo (capucha y cordones, bolsillo con símbolo AX y lapicero dorado, blazer con corbata y pin).
+- `SOCIOS`: tono de piel, pelo, ojos, atuendo (`camisa_vestir`, `buso`, `blazer` con `saco` y `camisa` de color propio), pantalón (`chino`, `jean`, `gris`, `negro`, `caqui`, con `cargo`),
+  zapatos (`cuero_cafe`, `tenis`, `cuero_negro`), peinado (`copete`, `rizado`, `texturizado`), barba, gafas y cadena.
+- `pelo()`: pelo esculpido con el volumen de la imagen guía: copete en mechones gruesos barridos hacia arriba y a la derecha, rizos en bolitas sobre una cúpula y pelo texturizado con flequillo. La barba de candado es de bloques.
+- `ropa()`: detalles de cada atuendo (bolsillo con símbolo AX y lapicero dorado; blazer abierto sin corbata con pin AX).
 - `POSES`: brazos (hombro y codo), cabeza, cejas, `guino`, `pulgar_arriba`, `calculadora`.
 - `ax-simbolo.png`: el símbolo AX recortado del logo, usado en el buso, el bolsillo y el pin.
-- Luces, fondo (ciclorama azul con el letrero AXIOS) y cámara al final del archivo.
+- Luces, fondo (pared azul, piso oscuro y tarima con aro de luz, como la imagen guía) y cámara al final del archivo.
 
 ## Privacidad
 
