@@ -14,6 +14,9 @@ blender -b -P mascotas.py -- --salida ../../mascotas/retrato_socio1.png --retrat
 
 - `--retrato 0|1|2`: primer plano de un socio (1080x1080). Sin este parámetro: el grupo (1080x1350).
 - `--muestras`: calidad del render. Con 24 sale una vista previa en ~1,5 min; con 128, la versión final.
+- Para videos: `--solo 0|1|2` renderiza un solo socio con fondo transparente; `--boca cerrada|media|abierta`,
+  `--ojos cerrados` (parpadeo) y `--pose explica|senala` generan las imágenes que se alternan al hablar
+  (ver `lote3/sprites/`). Ejemplo: `blender -b -P mascotas.py -- --salida s.png --solo 0 --pose explica --boca abierta --muestras 32`.
 
 ## Qué se puede cambiar en `mascotas.py`
 

@@ -26,6 +26,10 @@ SALIDA = arg('--salida', str(AQUI / 'equipo.png'))
 RETRATO = arg('--retrato')
 MUESTRAS = int(arg('--muestras', 96))
 BLEND = arg('--blend')
+SOLO = arg('--solo')            # índice de un socio: renderiza solo ese personaje, sin escenario
+BOCA_ESTADO = arg('--boca')     # cerrada | media | abierta (para animar el habla)
+OJOS = arg('--ojos', 'abiertos')  # abiertos | cerrados (parpadeo)
+POSE_ALT = arg('--pose')        # pose alternativa para videos: explica | senala
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene
@@ -576,7 +580,9 @@ def personaje(s, x, y, giro, pose):
 
     # Ojos, guiño opcional y cejas
     for sx in (-1, 1):
-        if pose.get('guino') == sx:
+        if OJOS == 'cerrados':
+            caja('ojo_cerrado', (0.4, 0.05, 0.07), (sx * 0.4, -0.82, 0.96), PUPILA, cabeza, bisel=0.02)
+        elif pose.get('guino') == sx:
             caja('guino_a', (0.24, 0.05, 0.07), (sx * 0.4 - 0.09, -0.82, 0.99), PUPILA, cabeza, rot=(0, -0.55, 0), bisel=0.02)
             caja('guino_b', (0.24, 0.05, 0.07), (sx * 0.4 + 0.09, -0.82, 0.99), PUPILA, cabeza, rot=(0, 0.55, 0), bisel=0.02)
         else:
@@ -589,12 +595,29 @@ def personaje(s, x, y, giro, pose):
         caja('ceja', (0.52, 0.1, s['ceja']), (sx * 0.4, -0.82, 1.3 + pose['cejas'] + sube), mat('ceja', '#140d09', 0.5), cabeza,
              rot=(0, -(0.18 * sx if sube else 0), 0), bisel=0.03)
 
-    # Boca sonriente
-    caja('boca', (0.6, 0.05, 0.2), (0, -0.8, 0.36), BOCA, cabeza, bisel=0.03)
-    for sx in (-1, 1):
-        caja('comisura', (0.12, 0.05, 0.14), (sx * 0.33, -0.8, 0.45), BOCA, cabeza, bisel=0.03)
-    caja('dientes', (0.46, 0.04, 0.07), (0, -0.825, 0.42), DIENTES, cabeza, bisel=0.015)
-    caja('lengua', (0.3, 0.03, 0.07), (0, -0.82, 0.3), LENGUA, cabeza, bisel=0.015)
+    # Boca: sonriente por defecto; para videos, cerrada / media / abierta según el habla
+    estado = BOCA_ESTADO if (BOCA_ESTADO and SOLO is not None) else 'sonrisa'
+    if estado == 'cerrada':
+        caja('boca', (0.5, 0.05, 0.06), (0, -0.8, 0.42), BOCA, cabeza, bisel=0.02)
+        for sx in (-1, 1):
+            caja('comisura', (0.1, 0.05, 0.1), (sx * 0.28, -0.8, 0.46), BOCA, cabeza, bisel=0.025)
+    elif estado == 'media':
+        caja('boca', (0.52, 0.05, 0.14), (0, -0.8, 0.38), BOCA, cabeza, bisel=0.03)
+        for sx in (-1, 1):
+            caja('comisura', (0.1, 0.05, 0.1), (sx * 0.29, -0.8, 0.44), BOCA, cabeza, bisel=0.025)
+        caja('dientes', (0.4, 0.04, 0.05), (0, -0.825, 0.42), DIENTES, cabeza, bisel=0.012)
+    elif estado == 'abierta':
+        caja('boca', (0.54, 0.05, 0.3), (0, -0.8, 0.32), BOCA, cabeza, bisel=0.04)
+        for sx in (-1, 1):
+            caja('comisura', (0.1, 0.05, 0.12), (sx * 0.3, -0.8, 0.43), BOCA, cabeza, bisel=0.03)
+        caja('dientes', (0.42, 0.04, 0.07), (0, -0.825, 0.43), DIENTES, cabeza, bisel=0.015)
+        caja('lengua', (0.3, 0.03, 0.1), (0, -0.82, 0.22), LENGUA, cabeza, bisel=0.02)
+    else:
+        caja('boca', (0.6, 0.05, 0.2), (0, -0.8, 0.36), BOCA, cabeza, bisel=0.03)
+        for sx in (-1, 1):
+            caja('comisura', (0.12, 0.05, 0.14), (sx * 0.33, -0.8, 0.45), BOCA, cabeza, bisel=0.03)
+        caja('dientes', (0.46, 0.04, 0.07), (0, -0.825, 0.42), DIENTES, cabeza, bisel=0.015)
+        caja('lengua', (0.3, 0.03, 0.07), (0, -0.82, 0.3), LENGUA, cabeza, bisel=0.015)
 
     pelo(s, cabeza, PELO, rnd)
     if s.get('barba'):
@@ -640,18 +663,29 @@ POSES = [
 ]
 POSICIONES = [(0, -0.5, 0), (-2.6, 0.3, 0.22), (2.6, 0.3, -0.22)]
 
-for s, (x, y, g), pose in zip(SOCIOS, POSICIONES, POSES):
+POSES_VIDEO = {
+    'explica': dict(der=(-0.7, 0.06, -0.95, 0, -0.15), izq=(0.0, -0.12, -0.1, 0), cabeza=(0.03, 0, -0.03), cejas=0.04),
+    'senala': dict(der=(0.0, 0.14, -0.1, 0), izq=(0.0, -0.5, 0, -2.4), cabeza=(-0.02, 0, 0.05), cejas=0.1),
+}
+for i, (s, (x, y, g), pose) in enumerate(zip(SOCIOS, POSICIONES, POSES)):
+    if SOLO is not None and i != int(SOLO):
+        continue
+    if SOLO is not None:
+        x, y, g = 0, 0, 0
+        if POSE_ALT:
+            pose = POSES_VIDEO[POSE_ALT]
     personaje(s, x, y, g, pose)
 
 # ---------------------------------------------------------------- set y luces
-bpy.ops.mesh.primitive_cylinder_add(vertices=128, radius=5.6, depth=0.3, location=(0, 0, -0.15))
-bpy.context.object.data.materials.append(mat('tarima', '#13304d', 0.3))
-bpy.ops.mesh.primitive_torus_add(major_radius=5.6, minor_radius=0.05, major_segments=160, location=(0, 0, 0.0))
-bpy.context.object.data.materials.append(mat('aro', '#7fe3f5', 0.3, emision=5.0))
-bpy.ops.mesh.primitive_plane_add(size=120, location=(0, 0, -0.3))
-bpy.context.object.data.materials.append(mat('piso', '#050b14', 0.4))
-bpy.ops.mesh.primitive_plane_add(size=160, location=(0, 13, 40), rotation=(math.pi / 2, 0, 0))
-bpy.context.object.data.materials.append(mat('pared', '#0a3d6b', 0.85))
+if SOLO is None:
+    bpy.ops.mesh.primitive_cylinder_add(vertices=128, radius=5.6, depth=0.3, location=(0, 0, -0.15))
+    bpy.context.object.data.materials.append(mat('tarima', '#13304d', 0.3))
+    bpy.ops.mesh.primitive_torus_add(major_radius=5.6, minor_radius=0.05, major_segments=160, location=(0, 0, 0.0))
+    bpy.context.object.data.materials.append(mat('aro', '#7fe3f5', 0.3, emision=5.0))
+    bpy.ops.mesh.primitive_plane_add(size=120, location=(0, 0, -0.3))
+    bpy.context.object.data.materials.append(mat('piso', '#050b14', 0.4))
+    bpy.ops.mesh.primitive_plane_add(size=160, location=(0, 13, 40), rotation=(math.pi / 2, 0, 0))
+    bpy.context.object.data.materials.append(mat('pared', '#0a3d6b', 0.85))
 
 def luz(nombre, loc, apunta, potencia, color='#ffffff', tam=4.0):
     l = bpy.data.lights.new(nombre, 'AREA'); l.energy = potencia; l.color = hex2rgb(color)[:3]; l.shape = 'DISK'; l.size = tam
@@ -672,7 +706,14 @@ world.node_tree.nodes['Background'].inputs['Strength'].default_value = 0.5
 
 # ---------------------------------------------------------------- cámara y render
 cam_d = bpy.data.cameras.new('cam'); cam = bpy.data.objects.new('cam', cam_d); scene.collection.objects.link(cam); scene.camera = cam
-if RETRATO is not None:
+if SOLO is not None:
+    cam_d.lens = 50
+    cam.location = (0.3, -10.2, 4.3)
+    objetivo = Vector((0, 0, 3.55))
+    scene.render.resolution_x, scene.render.resolution_y = 1080, 1080
+    scene.render.film_transparent = True
+    scene.render.image_settings.color_mode = 'RGBA'
+elif RETRATO is not None:
     x, y, _ = POSICIONES[int(RETRATO)]
     cam_d.lens = 70
     cam.location = (x + 0.35, y - 12.0, 5.0)
