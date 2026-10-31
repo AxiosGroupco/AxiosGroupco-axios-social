@@ -3,10 +3,10 @@
 #   1) recorte: solo acorta pausas largas (la voz sigue natural, para transcribir los subtítulos)
 #   2) locutor: quita ruido (RNNoise), cambia tono y timbre (Rubber Band) y aplica cadena de radio
 #      (EQ, de-esser, compresión, -14 LUFS) SIN mover los tiempos del paso 1.
-# Uso: voz_locutor.sh entrada carpeta_salida SEMITONOS   (ej. -2.5; 0 = sin cambio de voz)
+# Uso: voz_locutor.sh entrada carpeta_salida [SEMITONOS]   (0 por defecto = su voz natural limpia; -2.5 = más grave)
 # Escribe carpeta/voz_recortada.wav y carpeta/voz_final.wav
 set -euo pipefail
-ENT="$1"; DIR="$2"; ST="${3:--2.5}"
+ENT="$1"; DIR="$2"; ST="${3:-0}"
 mkdir -p "$DIR"
 MODELO="$(cd "$(dirname "$0")" && pwd)/modelos/sh.rnnn"
 # Modelo RNNoise de voz (repositorio GregorR/rnnoise-models); se descarga, no se versiona
