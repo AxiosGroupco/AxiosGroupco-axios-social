@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Lote 4: Instagram noviembre 2026</title>
+<style>
+  @font-face { font-family: "Poppins"; src: url("../../web/assets/fonts/poppins-400.woff2") format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Poppins"; src: url("../../web/assets/fonts/poppins-600.woff2") format("woff2"); font-weight: 600; }
+  @font-face { font-family: "Poppins"; src: url("../../web/assets/fonts/poppins-700.woff2") format("woff2"); font-weight: 700; }
+
+  :root {
+    --navy-950: #071726; --navy-900: #0b1f33; --navy-800: #0d2c46;
+    --teal-700: #0f6f78; --teal-600: #13808a; --teal-300: #4fc3cf;
+    --red-600: #c8102e;
+    --ink: #0b1f33; --text: #334155; --muted: #64748b; --line: #e2e8f0; --soft: #f1f5f9;
+    --on-dark: #e2e8f0; --on-dark-muted: #a9b8c9; --white: #ffffff;
+    --brand-rule: linear-gradient(90deg, var(--red-600) 0%, var(--navy-900) 50%, var(--teal-600) 100%);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Poppins", sans-serif; background: #888; }
+
+  .slide { width: 1080px; height: 1350px; position: relative; overflow: hidden; padding: 70px 80px; display: flex; flex-direction: column; margin-bottom: 20px; }
+  .slide > * { flex-shrink: 0; }
+  .dark { background: linear-gradient(160deg, var(--navy-950) 0%, var(--navy-800) 55%, #0c3a52 100%); color: var(--white); }
+  .light { background: #fff; color: var(--ink); }
+  .deco { position: absolute; right: -60px; bottom: -40px; width: 520px; height: 640px; pointer-events: none; }
+
+  .logo-card { background: #fff; border-radius: 32px; padding: 26px 36px; width: max-content; box-shadow: 0 18px 40px rgba(0,0,0,.25); position: relative; z-index: 1; }
+  .logo-card img { height: 80px; display: block; }
+  .head { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
+  .head img { height: 78px; }
+  .page { font-size: 30px; font-weight: 600; color: var(--ink); letter-spacing: .06em; }
+  .page span { color: var(--muted); font-weight: 400; }
+  .rule { height: 5px; border-radius: 3px; background: var(--brand-rule); margin-top: 34px; position: relative; z-index: 1; }
+
+  .eyebrow { display: flex; align-items: center; gap: 22px; font-size: 27px; font-weight: 700; letter-spacing: .24em; color: var(--teal-300); text-transform: uppercase; }
+  .eyebrow::before { content: ""; width: 64px; height: 5px; border-radius: 3px; background: linear-gradient(90deg, var(--red-600), var(--teal-300)); }
+  .light .eyebrow { color: var(--teal-600); }
+
+  .cover-body { margin-top: auto; margin-bottom: auto; position: relative; z-index: 1; }
+  .cover-title { font-size: 92px; line-height: 1.05; font-weight: 700; color: #fff; letter-spacing: -0.02em; margin-top: 34px; }
+  .t-teal { color: var(--teal-300); }
+  .t-teal-dark { color: var(--teal-600); }
+  .t-red { color: var(--red-600); }
+  .cover-sub { font-size: 36px; line-height: 1.45; color: var(--on-dark); margin-top: 38px; max-width: 860px; }
+  .cover-sub b { color: #fff; }
+
+  .foot { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; font-size: 30px; }
+  .dark .foot { color: var(--on-dark-muted); }
+  .light .foot { color: var(--muted); margin-top: auto; }
+  .pill { background: var(--teal-600); color: #fff; font-weight: 700; border-radius: 40px; padding: 18px 34px; display: flex; gap: 18px; align-items: center; box-shadow: 0 10px 26px rgba(19,128,138,.35); }
+  .next { color: var(--teal-600); font-weight: 700; display: flex; gap: 16px; align-items: center; }
+
+  .h2 { font-size: 56px; line-height: 1.12; font-weight: 700; letter-spacing: -0.015em; margin-top: 50px; position: relative; z-index: 1; }
+  .lead { font-size: 30px; color: var(--text); line-height: 1.45; margin-top: 18px; position: relative; z-index: 1; }
+
+  .stats { display: flex; flex-direction: column; gap: 24px; margin-top: 42px; position: relative; z-index: 1; }
+  .stat { background: var(--soft); border: 2px solid var(--line); border-radius: 30px; padding: 30px 42px; }
+  .stat .lbl { font-size: 24px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--teal-600); }
+  .stat .num { font-size: 72px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-top: 6px; }
+  .stat .cond { font-size: 29px; color: var(--text); margin-top: 4px; line-height: 1.4; }
+  .note { font-size: 23px; color: var(--muted); margin-top: 24px; line-height: 1.45; position: relative; z-index: 1; }
+  .dark .note { color: var(--on-dark-muted); }
+
+  .items { display: flex; flex-direction: column; gap: 20px; margin-top: 34px; position: relative; z-index: 1; }
+  .item { background: var(--soft); border: 2px solid var(--line); border-radius: 30px; padding: 22px 38px 22px 32px; display: flex; gap: 32px; align-items: center; }
+  .badge { flex: none; width: 96px; height: 96px; border-radius: 50%; background: var(--navy-900); color: #fff; font-size: 40px; font-weight: 700; display: grid; place-items: center; box-shadow: 0 0 0 6px #fff, 0 0 0 9px #7cc3c9; }
+  .badge.red { background: var(--red-600); box-shadow: 0 0 0 6px #fff, 0 0 0 9px #e9a3ad; }
+  .badge.teal { background: var(--teal-600); }
+  .badge.sm { font-size: 30px; }
+  .item h3 { font-size: 35px; font-weight: 700; line-height: 1.2; }
+  .item p { font-size: 27px; color: var(--muted); line-height: 1.42; margin-top: 6px; }
+  .item b { color: var(--ink); font-weight: 600; }
+
+  .callout { margin-top: 28px; background: var(--navy-900); color: #fff; border-radius: 30px; padding: 30px 40px; font-size: 31px; line-height: 1.4; font-weight: 600; position: relative; z-index: 1; }
+  .callout.red { background: var(--red-600); }
+
+  /* tabla de fechas por NIT */
+  .nit { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; margin-top: 40px; position: relative; z-index: 1; }
+  .cell { background: var(--soft); border: 2px solid var(--line); border-radius: 26px; padding: 22px 10px 24px; text-align: center; }
+  .cell .d { font-size: 22px; font-weight: 600; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
+  .cell .n { font-size: 60px; font-weight: 700; line-height: 1.1; color: var(--navy-900); }
+  .cell .f { font-size: 30px; font-weight: 700; color: var(--teal-600); margin-top: 4px; }
+  .cell.hot { background: var(--navy-900); border-color: var(--navy-900); }
+  .cell.hot .n { color: #fff; } .cell.hot .d { color: var(--on-dark-muted); } .cell.hot .f { color: var(--teal-300); }
+  .tags { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 30px; position: relative; z-index: 1; }
+  .tag { background: #e6f4f5; color: var(--teal-700); font-weight: 700; font-size: 25px; border-radius: 40px; padding: 12px 26px; }
+
+  /* fecha grande */
+  .bigdate { display: flex; align-items: center; gap: 36px; margin-top: 24px; }
+  .bigdate .day { font-size: 230px; font-weight: 700; line-height: .9; letter-spacing: -0.04em; }
+  .bigdate .mon { font-size: 100px; font-weight: 700; color: var(--teal-300); line-height: 1; }
+  .bigdate .yr { font-size: 54px; color: var(--on-dark); margin-top: 10px; }
+  .dt-title { font-size: 60px; font-weight: 700; line-height: 1.1; margin-top: 30px; }
+  .dt-sub { font-size: 31px; line-height: 1.42; color: var(--on-dark); margin-top: 18px; }
+  .dt-sub b { color: #fff; }
+  .band { position: absolute; left: 0; right: 0; bottom: 0; height: 170px; background: rgba(4,14,24,.55); display: flex; justify-content: space-between; align-items: center; padding: 0 80px; z-index: 2; }
+  .band .k { font-size: 24px; font-weight: 700; letter-spacing: .2em; color: var(--teal-300); text-transform: uppercase; }
+  .band .v { font-size: 34px; font-weight: 700; color: #fff; margin-top: 6px; }
+  .mini { display: flex; flex-direction: column; gap: 12px; margin-top: 26px; }
+  .mini div { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,.07); border: 2px solid rgba(255,255,255,.12); border-radius: 22px; padding: 14px 30px; font-size: 30px; }
+  .mini b { color: var(--teal-300); font-size: 36px; }
+
+  /* contacto */
+  .contact { background: #fff; border-radius: 34px; padding: 36px 46px; margin-top: 46px; color: var(--ink); position: relative; z-index: 1; }
+  .row { display: flex; gap: 30px; align-items: center; }
+  .row + .row { border-top: 2px solid var(--line); margin-top: 28px; padding-top: 28px; }
+  .ico { flex: none; width: 84px; height: 84px; border-radius: 22px; background: linear-gradient(160deg, var(--teal-600), var(--teal-700)); display: grid; place-items: center; }
+  .ico svg { width: 40px; height: 40px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .contact .k { font-size: 24px; font-weight: 600; letter-spacing: .16em; color: var(--muted); text-transform: uppercase; }
+  .contact .v { font-size: 40px; font-weight: 700; line-height: 1.25; }
+  .contact .v.small { font-size: 34px; }
+  .legal { font-size: 22px; color: var(--on-dark-muted); margin-top: 24px; position: relative; z-index: 1; }
+
+  /* foto del equipo */
+  .photo { position: absolute; inset: 0; background: url("equipo.png") center top / cover no-repeat; }
+  .photo-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 760px; background: linear-gradient(180deg, rgba(7,23,38,0) 0%, rgba(7,23,38,.92) 38%, #071726 100%); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="arrow" viewBox="0 0 520 640">
+      <path d="M40 640 L360 170 L300 130 L470 60 L455 245 L400 205 L110 640 Z"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div id="root"></div>
+
+<script>
+const LOGO = '../../web/assets/img/logo-axios.png';
+const decoDark = '<svg class="deco" viewBox="0 0 520 640"><use href="#arrow" fill="#c8102e" fill-opacity=".22" transform="translate(-40 40)"/><use href="#arrow" fill="#4fc3cf" fill-opacity=".14" transform="translate(70 90)"/></svg>';
+const decoLight = '<svg class="deco" viewBox="0 0 520 640" style="opacity:.6"><use href="#arrow" fill="#13808a" fill-opacity=".08" transform="translate(60 80)"/></svg>';
+const icoTel = '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
+const icoMail = '<svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>';
+
+const slides = [];
+// Portada oscura
+function cover(id, eyebrow, title, sub, single) {
+  slides.push([id, 'dark', `${decoDark}<div class="logo-card"><img src="${LOGO}" alt=""></div>
+  <div class="cover-body"><div class="eyebrow">${eyebrow}</div><h1 class="cover-title">${title}</h1>${sub ? `<p class="cover-sub">${sub}</p>` : ''}</div>
+  <div class="foot"><span>@axiosgroupsas</span>${single ? '<span>Axios Group S.A.S.</span>' : '<span class="pill">Deslice <span>→</span></span>'}</div>`]);
+}
+// Página clara con encabezado y número
+function page(id, n, total, body, last) {
+  slides.push([id, 'light', `${decoLight}<div class="head"><img src="${LOGO}" alt="">${total ? `<div class="page">0${n} <span>/ 0${total}</span></div>` : ''}</div><div class="rule"></div>${body}
+  <div class="foot"><span>@axiosgroupsas</span>${last ? '<span>Axios Group S.A.S.</span>' : '<span class="next">Deslice <span>→</span></span>'}</div>`]);
+}
+// Cierre con contacto
+function contact(id, eyebrow, title, sub, legal) {
+  slides.push([id, 'dark', `${decoDark}<div class="logo-card"><img src="${LOGO}" alt=""></div>
+  <div class="cover-body"><div class="eyebrow">${eyebrow}</div><h1 class="cover-title" style="font-size:76px">${title}</h1><p class="cover-sub">${sub}</p>
+  <div class="contact"><div class="row"><div class="ico">${icoTel}</div><div><div class="k">WhatsApp</div><div class="v">317 452 9094</div></div></div>
+  <div class="row"><div class="ico">${icoMail}</div><div><div class="k">Correo</div><div class="v small">administracion@axiosgroupco.com</div></div></div></div>
+  <p class="legal">${legal || 'Información general con base en la normativa vigente a noviembre de 2026. No reemplaza la revisión de su caso.'}</p></div>
+  <div class="foot"><span>@axiosgroupsas</span><span>Axios Group S.A.S.</span></div>`]);
+}
+// Recordatorio con fecha grande
+function bigdate(id, eyebrow, day, mon, title, sub, extra, note) {
+  slides.push([id, 'dark', `${decoDark}<div class="logo-card"><img src="${LOGO}" alt=""></div>
+  <div style="margin-top:44px;position:relative;z-index:1"><div class="eyebrow">${eyebrow}</div>
+  <div class="bigdate"><div class="day">${day}</div><div><div class="mon">${mon}</div><div class="yr">2026</div></div></div>
+  <div class="dt-title">${title}</div><p class="dt-sub">${sub}</p>${extra || ''}<p class="note" style="margin-top:22px">${note}</p></div>
+  <div class="band"><div><div class="k">¿Dudas? Escríbanos</div><div class="v">administracion@axiosgroupco.com</div></div><div style="text-align:right"><div class="k">WhatsApp</div><div class="v">317 452 9094</div></div></div>`]);
+}
+const item = (b, h, p, cls='') => `<div class="item"><div class="badge ${cls}">${b}</div><div><h3>${h}</h3>${p ? `<p>${p}</p>` : ''}</div></div>`;
+const nitGrid = (fechas, mes, hot) => `<div class="nit">${['1','2','3','4','5','6','7','8','9','0'].map((d,i) => `<div class="cell ${hot && hot.includes(d) ? 'hot' : ''}"><div class="d">NIT</div><div class="n">${d}</div><div class="f">${fechas[i]} ${mes}</div></div>`).join('')}</div>`;
+
+/* ---------- P01 · Equipo (4 nov) ---------- */
+slides.push(['p01_equipo', 'dark', `<div class="photo"></div><div class="photo-fade"></div>
+  <div class="logo-card" style="padding:20px 30px"><img src="${LOGO}" alt="" style="height:66px"></div>
+  <div style="margin-top:auto;position:relative;z-index:1">
+    <div class="eyebrow">Quiénes somos</div>
+    <h1 class="cover-title" style="font-size:74px;margin-top:24px">Detrás de cada cifra hay un <span class="t-teal">equipo que responde</span></h1>
+    <p class="cover-sub" style="font-size:31px;margin-top:22px">Tres socios, un compromiso: que su empresa cumpla a tiempo y sin sorpresas. Contabilidad, impuestos, nómina y revisoría fiscal en un solo lugar.</p>
+  </div>
+  <div class="foot" style="margin-top:34px"><span>@axiosgroupsas</span><span>WhatsApp 317 452 9094</span></div>`]);
+
+/* ---------- P02 · Vencimientos de noviembre (5 nov) ---------- */
+cover('p02_s1', 'Calendario DIAN · noviembre 2026', 'Lo que <span class="t-teal">vence en noviembre</span>', 'IVA, retención en la fuente, impuesto al consumo y SIMPLE: <b>del 11 al 25 de noviembre</b>, según el último dígito de su NIT.');
+page('p02_s2', 2, 3, `<h2 class="h2">Busque el <span class="t-teal-dark">último dígito</span> de su NIT</h2>
+  <p class="lead">Sin contar el dígito de verificación.</p>
+  ${nitGrid(['11','12','13','17','18','19','20','23','24','25'], 'nov')}
+  <div class="tags"><span class="tag">IVA bimestral sep-oct</span><span class="tag">Retención de octubre (F350)</span><span class="tag">INC bimestral</span><span class="tag">Anticipo SIMPLE sep-oct</span></div>
+  <p class="note">Calendario tributario 2026 (Decreto 2229 de 2023). Algunas seccionales tienen plazos especiales: confirme su caso.</p>`);
+contact('p02_s3', 'También en noviembre', '¿Su contador ya <span class="t-teal">tiene sus fechas</span>?', '<b>20 nov:</b> ReteICA Bogotá, 5.º bimestre. <b>11 dic:</b> ICA Bogotá bimestral. Escriba <b>CALENDARIO</b> por WhatsApp y le enviamos sus fechas según su NIT.');
+
+/* ---------- P04 · Sanciones (9 nov) ---------- */
+page('p04_sancion', 0, 0, `<div class="eyebrow" style="margin-top:46px">Sanciones DIAN</div>
+  <h2 class="h2" style="margin-top:20px">Declarar tarde <span class="t-red">sale caro</span></h2>
+  <div class="stats">
+    <div class="stat"><div class="lbl">Extemporaneidad</div><div class="num">5 % por mes</div><div class="cond">Del impuesto a cargo, por cada mes o fracción de retraso, hasta el 100 % (art. 641 ET). Si la DIAN ya lo emplazó: 10 % (art. 642).</div></div>
+    <div class="stat"><div class="lbl">Sanción mínima 2026</div><div class="num">$523.740</div><div class="cond">10 UVT, aunque no haya impuesto a pagar (art. 639 ET). Más intereses de mora sobre lo que pague tarde.</div></div>
+  </div>
+  <div class="callout red">Ojo con la retención: si la presenta sin el pago total, la declaración no produce efecto legal (art. 580-1 ET).</div>`, true);
+
+/* ---------- P05 · Arrancan vencimientos (10 nov) ---------- */
+bigdate('p05_manana', 'Recordatorio DIAN', '11', 'NOV', 'Arrancan <span class="t-teal">IVA y retención</span>', 'Mañana declaran y pagan los NIT terminados en <b>1</b>. El resto, hasta el <b>25 de noviembre</b> según su último dígito.',
+  `<div class="mini"><div><span>NIT 1 · 2 · 3</span><b>11 · 12 · 13 nov</b></div><div><span>NIT 4 · 5 · 6 · 7</span><b>17 · 18 · 19 · 20 nov</b></div><div><span>NIT 8 · 9 · 0</span><b>23 · 24 · 25 nov</b></div></div>`,
+  'Calendario tributario DIAN 2026. Confirme su caso en dian.gov.co.');
+
+/* ---------- P06 · Señales para cambiar de contador (12 nov) ---------- */
+cover('p06_s1', 'Outsourcing contable', '5 señales de que su contabilidad <span class="t-teal">necesita otro equipo</span>', 'Si se identifica con dos o más, es momento de hablar antes del cierre del año.');
+page('p06_s2', 2, 4, `<h2 class="h2">¿Le suena <span class="t-teal-dark">familiar</span>?</h2><div class="items">
+  ${item('1', 'Se entera de los vencimientos el mismo día', 'O peor: cuando llega el recibo de la sanción.')}
+  ${item('2', 'Paga sanciones o intereses que nadie le explica', 'Cada peso de más es un error que se pudo evitar.')}
+  ${item('3', 'No tiene estados financieros a tiempo', 'Y toma decisiones sin saber cuánto gana de verdad.')}
+  </div>`);
+page('p06_s3', 3, 4, `<h2 class="h2">Y dos más que <span class="t-teal-dark">cuestan caro</span></h2><div class="items">
+  ${item('4', 'Sus preguntas tardan días en responderse', 'Su contador está, pero no está.')}
+  ${item('5', 'No sabe si le aplica revisor fiscal, exógena o nómina electrónica', 'Cumplir empieza por saber qué le toca.')}
+  </div><div class="callout">Con Axios tiene un solo equipo para contabilidad, impuestos, nómina y revisoría, y una plataforma donde consulta su información.</div>`);
+contact('p06_s4', 'Hablemos', 'Revisemos su <span class="t-teal">contabilidad</span>', 'Escriba <b>DIAGNÓSTICO</b> por WhatsApp. Revisamos su RUT, sus obligaciones y el estado de su contabilidad.');
+
+/* ---------- P07 · Plataforma (13 nov) ---------- */
+page('p07_plataforma', 0, 0, `<div class="eyebrow" style="margin-top:46px">Plataforma Axios</div>
+  <h2 class="h2" style="margin-top:20px">Su información contable, <span class="t-teal-dark">cuando la necesite</span></h2>
+  <p class="lead">Nuestros clientes consultan en línea lo que hacemos por ellos.</p>
+  <div class="items">
+  ${item('✓', 'Calendario tributario por NIT', 'Con alertas de los próximos vencimientos DIAN.', 'teal')}
+  ${item('✓', 'Exógena validada antes de presentar', 'Formatos 1001 a 1012 y 2276.', 'teal')}
+  ${item('✓', 'Conciliación bancaria automática', 'Y estados financieros a partir de su balance.', 'teal')}
+  ${item('✓', 'Auditoría con puntaje de salud', 'Sepa cómo está su empresa en una sola cifra.', 'teal')}
+  </div>`, true);
+
+/* ---------- P08 · Planeación renta (17 nov) ---------- */
+cover('p08_s1', 'Renta personas naturales', 'Pague menos renta, <span class="t-teal">legalmente</span>', 'Lo que haga antes del <b>31 de diciembre de 2026</b> cuenta para la declaración que presentará en 2027.');
+page('p08_s2', 2, 4, `<h2 class="h2">Tres decisiones <span class="t-teal-dark">antes de fin de año</span></h2><div class="items">
+  ${item('1', 'Ahorro en pensión voluntaria o AFC', 'Renta exenta de hasta el 30 % de su ingreso, máximo <b>3.800 UVT</b> al año ($199.021.200).')}
+  ${item('2', 'Intereses de crédito de vivienda', 'Deducibles hasta <b>1.200 UVT</b> al año ($62.848.800). Pida el certificado al banco.')}
+  ${item('3', 'Medicina prepagada o seguro de salud', 'Deducible hasta <b>16 UVT</b> al mes ($837.984).')}
+  </div>`);
+page('p08_s3', 3, 4, `<h2 class="h2">Y dos que <span class="t-teal-dark">casi nadie usa</span></h2><div class="items">
+  ${item('4', 'Dependientes', 'Con rentas de trabajo, deducción adicional de <b>72 UVT</b> por dependiente ($3.770.928), hasta 4.')}
+  ${item('5', 'Compras con factura electrónica', 'Deduzca el <b>1 %</b> de lo que compre con factura y pague con medios electrónicos, hasta 240 UVT.')}
+  </div><div class="callout">Ojo con el tope: exenciones y deducciones suman máximo el 40 % del ingreso y 1.340 UVT al año. Las de los puntos 4 y 5 van por fuera de ese límite.</div>
+  <p class="note">UVT 2026: $52.374. Arts. 126-1, 126-4, 119, 387, 336 y 336 núm. 5 del ET.</p>`);
+contact('p08_s4', 'Planeación tributaria', 'Hagamos sus <span class="t-teal">cuentas</span> antes del 31', 'Escriba <b>PLANEAR</b> por WhatsApp y calculamos cuánto puede ahorrar en su renta 2026.');
+
+/* ---------- P09 · Exógena (18 nov) ---------- */
+page('p09_exogena', 0, 0, `<div class="eyebrow" style="margin-top:46px">Información exógena 2026</div>
+  <h2 class="h2" style="margin-top:20px;font-size:52px">Lo que no organiza en diciembre, <span class="t-teal-dark">lo sufre en abril</span></h2>
+  <p class="lead">La del año gravable 2026 se reporta en 2027. Prepárela ya:</p>
+  <div class="items">
+  ${item('1', 'Terceros completos', 'NIT, nombre y dirección de clientes y proveedores.')}
+  ${item('2', 'Contabilidad conciliada', 'Las cifras de los formatos deben cuadrar con sus libros y sus declaraciones.')}
+  ${item('3', 'Facturas electrónicas al día', 'Lo que reportan sus clientes y proveedores, la DIAN lo cruza con lo suyo.')}
+  </div>
+  <div class="callout red">Reportar tarde o con errores puede costar hasta 7.500 UVT: $392.805.000 en 2026 (art. 651 ET).</div>`, true);
+
+/* ---------- P10 · Revisor fiscal (19 nov) ---------- */
+page('p10_revisor', 0, 0, `<div class="eyebrow" style="margin-top:46px">Revisoría fiscal</div>
+  <h2 class="h2" style="margin-top:20px">¿Su empresa necesitará <span class="t-teal-dark">revisor fiscal</span> en 2027?</h2>
+  <p class="lead">Lo definen sus cifras a <b>31 de diciembre de 2026</b>. Basta con cumplir una:</p>
+  <div class="stats">
+    <div class="stat"><div class="lbl">Activos brutos</div><div class="num">5.000 SMMLV</div><div class="cond">O más, a 31 de diciembre del año anterior.</div></div>
+    <div class="stat"><div class="lbl">Ingresos brutos</div><div class="num">3.000 SMMLV</div><div class="cond">O más, durante el año anterior.</div></div>
+  </div>
+  <p class="note">Aplica también a las S.A.S. Las sociedades anónimas y las sucursales de sociedades extranjeras siempre lo necesitan. Art. 203 C. de Co. y Ley 43 de 1990, art. 13, par. 2.</p>`, true);
+
+/* ---------- P11 · Última semana (23 nov) ---------- */
+bigdate('p11_ultima', 'Última semana', '25', 'NOV', 'Últimos días para <span class="t-teal">IVA y retención</span>', 'Si su NIT termina en 8, 9 o 0, todavía está a tiempo de evitar la sanción.',
+  `<div class="mini"><div><span>NIT terminado en 8</span><b>Lunes 23 nov</b></div><div><span>NIT terminado en 9</span><b>Martes 24 nov</b></div><div><span>NIT terminado en 0</span><b>Miércoles 25 nov</b></div></div>`,
+  'Calendario tributario DIAN 2026. IVA bimestral sep-oct y retención de octubre.');
+
+/* ---------- P12 · Nómina de diciembre (24 nov) ---------- */
+cover('p12_s1', 'Nómina y prestaciones', 'Diciembre en nómina: <span class="t-teal">4 fechas</span> que no puede pasar por alto', 'Prima, dotación y cesantías. Planee su caja desde ya.');
+page('p12_s2', 2, 3, `<h2 class="h2">Anote estas <span class="t-teal-dark">fechas</span></h2><div class="items">
+  ${item('20', 'Prima de servicios · 20 dic', 'Cae domingo: páguela a más tardar el viernes 18 (art. 306 CST).', 'sm')}
+  ${item('20', 'Dotación · 20 dic', 'Para quienes ganan hasta 2 SMMLV y llevan más de 3 meses (art. 230 CST).', 'sm')}
+  ${item('31', 'Intereses a las cesantías · 31 ene 2027', 'El 12 % anual, pagado directamente al trabajador.', 'sm')}
+  ${item('14', 'Consignación de cesantías · 14 feb 2027', 'Al fondo de cesantías de cada trabajador.', 'sm')}
+  </div><div class="callout">Cada pago de nómina se reporta a la DIAN como nómina electrónica.</div>`);
+contact('p12_s3', 'Nómina electrónica', '¿Quiere que <span class="t-teal">liquidemos</span> su nómina?', 'Escriba <b>NÓMINA</b> por WhatsApp. Liquidamos prima, prestaciones, PILA y nómina electrónica.');
+
+/* ---------- P13 · Por qué Axios (25 nov) ---------- */
+cover('p13_s1', 'Axios Group S.A.S.', '¿Por qué las empresas <span class="t-teal">trabajan con Axios</span>?', 'Cuatro razones para dejar sus impuestos en buenas manos.');
+page('p13_s2', 2, 3, `<h2 class="h2">Lo que <span class="t-teal-dark">nos diferencia</span></h2><div class="items">
+  ${item('1', 'Un solo equipo', 'Contabilidad, impuestos, nómina, legalización y revisoría fiscal.')}
+  ${item('2', 'Su calendario, según su NIT', 'Sabemos qué le vence y cuándo, antes de que se acerque la fecha.')}
+  ${item('3', 'Cálculos trazables a la norma', 'Cada cifra sale de un procedimiento claro, sin cajas negras.')}
+  ${item('4', 'Plataforma propia', 'Consulte sus estados financieros, su exógena y sus vencimientos.')}
+  </div>`);
+slides.push(['p13_s3', 'dark', `<div class="photo"></div><div class="photo-fade"></div>
+  <div class="logo-card" style="padding:20px 30px"><img src="${LOGO}" alt="" style="height:66px"></div>
+  <div style="margin-top:auto;position:relative;z-index:1"><div class="eyebrow">Hablemos</div>
+  <h1 class="cover-title" style="font-size:72px;margin-top:22px">Cuéntenos de su empresa</h1>
+  <p class="cover-sub" style="font-size:32px;margin-top:20px">WhatsApp <b>317 452 9094</b> · <b>301 461 3595</b> · <b>310 748 5689</b><br>administracion@axiosgroupco.com</p></div>
+  <div class="foot" style="margin-top:34px"><span>@axiosgroupsas</span><span>axiosgroupco.com</span></div>`]);
+
+/* ---------- P14 · Régimen SIMPLE (26 nov) ---------- */
+cover('p14_s1', 'Régimen SIMPLE', '¿Le conviene el <span class="t-teal">SIMPLE</span> en 2027?', 'La decisión se toma antes del <b>último día hábil de febrero de 2027</b>. Los números se hacen ahora.');
+page('p14_s2', 2, 3, `<h2 class="h2">Lo que <span class="t-teal-dark">debe saber</span></h2><div class="items">
+  ${item('✓', 'Un solo pago', 'Integra renta e ICA consolidado, con anticipos bimestrales y tarifas por actividad.', 'teal')}
+  ${item('✓', 'Sin retención en la fuente', 'A sus ingresos no se les practica retención de renta.', 'teal')}
+  ${item('✓', 'Pueden entrar', 'Personas naturales y sociedades con socios personas naturales, con ingresos de 2026 menores a 100.000 UVT.', 'teal')}
+  ${item('!', 'No siempre conviene', 'Depende de su actividad, sus costos y sus deducciones.', 'red')}
+  </div><p class="note">Arts. 903 a 916 ET. 100.000 UVT 2026 = $5.237.400.000. Inscripción en el RUT, responsabilidad 47.</p>`);
+contact('p14_s3', 'Hagamos números', '¿SIMPLE u <span class="t-teal">ordinario</span>?', 'Escriba <b>SIMPLE</b> por WhatsApp y comparamos cuánto pagaría en cada régimen.');
+
+/* ---------- P15 · Crear empresa (27 nov) ---------- */
+cover('p15_empresa', 'Legalización de empresas', '¿Quiere facturar desde el <span class="t-teal">1 de enero</span>? Cree su empresa en diciembre', 'Estatutos, Cámara de Comercio, RUT, firma y facturación electrónica: lo gestionamos por usted. Escriba <b>EMPRESA</b> al 317 452 9094.', true);
+
+/* ---------- P16 · Vencimientos de diciembre (30 nov) ---------- */
+cover('p16_s1', 'Calendario · diciembre 2026', 'Lo que <span class="t-teal">vence en diciembre</span>', 'Retención de noviembre, ICA de Bogotá, prima y dotación. Cierre el año sin sanciones.');
+page('p16_s2', 2, 3, `<h2 class="h2">Retención de noviembre <span class="t-teal-dark">(F350)</span></h2>
+  <p class="lead">Último dígito del NIT, sin dígito de verificación.</p>
+  ${nitGrid(['10','11','14','15','16','17','18','21','22','23'], 'dic')}
+  <div class="tags"><span class="tag">11 dic · ICA Bogotá bimestral sep-oct</span><span class="tag">20 dic · Prima y dotación</span><span class="tag">Nómina electrónica de noviembre</span></div>
+  <p class="note">Calendario tributario 2026 (Decreto 2229 de 2023) y Resolución SDH-000195. En enero: IVA nov-dic, retención de diciembre y SIMPLE, del 13 al 26.</p>`);
+contact('p16_s3', 'Cierre 2026', 'Cierre el año <span class="t-teal">en orden</span>', 'Escriba <b>CALENDARIO</b> por WhatsApp y le enviamos todas sus fechas según su NIT.');
+
+/* ---------- P17 · Saldos a favor (20 nov) ---------- */
+page('p17_saldo', 0, 0, `<div class="eyebrow" style="margin-top:46px">Devoluciones DIAN</div>
+  <h2 class="h2" style="margin-top:20px">¿Tiene <span class="t-teal-dark">saldo a favor</span>? Ese dinero es suyo</h2>
+  <p class="lead">En renta o en IVA, puede pedir que la DIAN se lo devuelva o lo compense con otros impuestos.</p>
+  <div class="stats">
+    <div class="stat"><div class="lbl">Plazo para pedirlo</div><div class="num">2 años</div><div class="cond">Desde el vencimiento del plazo para declarar (art. 854 ET). Después, lo pierde.</div></div>
+    <div class="stat"><div class="lbl">Plazo de la DIAN</div><div class="num">50 días hábiles</div><div class="cond">Para resolver una solicitud completa (art. 855 ET).</div></div>
+  </div>
+  <div class="callout">Escriba <span class="t-teal">SALDO</span> por WhatsApp al 317 452 9094 y revisamos sus declaraciones.</div>`, true);
+
+const root = document.getElementById('root');
+for (const [id, cls, html] of slides) {
+  const s = document.createElement('section');
+  s.className = 'slide ' + cls; s.id = id; s.innerHTML = html;
+  root.appendChild(s);
+}
+</script>
+</body>
+</html>
