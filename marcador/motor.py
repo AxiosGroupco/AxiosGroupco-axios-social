@@ -36,7 +36,7 @@ def ruta_log():
     return os.path.join(carpeta_datos(), "resultado_llamadas.csv")
 
 
-CONFIG_DEFECTO = {"timbre_max_s": 25, "pausa_s": 3, "cobranza": True, "modo": {}}
+CONFIG_DEFECTO = {"timbre_max_s": 25, "pausa_s": 3, "cobranza": True, "pedir_nota": True, "modo": {}}
 
 
 def cargar_config():

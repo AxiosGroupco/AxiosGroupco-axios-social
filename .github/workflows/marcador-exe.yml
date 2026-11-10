@@ -42,6 +42,10 @@ jobs:
       - name: Compilar
         run: >
           pyinstaller --onefile --noconsole --name MarcadorAxios
+          --icon recursos/icono.ico
+          --add-data "recursos/icono.ico;recursos"
+          --add-data "recursos/icono_44.png;recursos"
+          --add-data "recursos/icono_96.png;recursos"
           --add-binary "platform-tools/adb.exe;adb"
           --add-binary "platform-tools/AdbWinApi.dll;adb"
           --add-binary "platform-tools/AdbWinUsbApi.dll;adb"

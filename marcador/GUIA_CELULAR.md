@@ -27,6 +27,24 @@
 5. **Ver resultados** abre el registro de todas las llamadas
    (`Documentos\MarcadorAxios\resultado_llamadas.csv`).
 
+## Qué hace cada botón
+
+| Botón | Para qué sirve |
+|---|---|
+| **Cargar lista** | Elegir el Excel o CSV con los contactos. |
+| **▶ Iniciar llamadas** | Empezar a llamar. Si antes hace clic en una fila, empieza desde ese contacto. |
+| **⏸ Pausar / ▶ Reanudar** | Detener el marcado al terminar la llamada actual y continuarlo después. |
+| **✖ Colgar** | Colgar la llamada actual: al terminar de hablar o para saltar un número. |
+| **☎ ¡Contestaron!** | Solo aparece si el celular no avisa cuándo contestan: presiónelo al oír que contestan. |
+| **Guardar y llamar al siguiente** | Guarda la nota de la llamada y continúa. Solo aparece si la nota está activada. |
+| **Ver resultados** | Abre en Excel el registro de todas las llamadas. |
+| **Plantilla de lista** | Crea un Excel de ejemplo para llenar con los contactos. |
+| **? Ayuda** | Muestra el recorrido paso a paso (se abre solo la primera vez). |
+| **⚙ Ajustes** | Segundos de timbre, pedir o no la nota al terminar cada llamada, llamadas de cobranza y modo de detección. |
+
+Con la nota **desactivada** en Ajustes, al terminar una llamada contestada el programa sigue solo
+con el siguiente contacto a los pocos segundos; use **Pausar** si necesita un respiro.
+
 ## Si algo falla
 
 | Lo que ve | Qué hacer |
