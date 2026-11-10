@@ -19,6 +19,8 @@ def _mci(orden):
     import ctypes
     buf = ctypes.create_unicode_buffer(256)
     err = ctypes.windll.winmm.mciSendStringW(orden, buf, 255, 0)
+    if err:
+        ctypes.windll.winmm.mciGetErrorStringW(err, buf, 255)
     return err == 0, buf.value
 
 
