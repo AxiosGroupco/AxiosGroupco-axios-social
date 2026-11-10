@@ -36,7 +36,8 @@ def ruta_log():
     return os.path.join(carpeta_datos(), "resultado_llamadas.csv")
 
 
-CONFIG_DEFECTO = {"timbre_max_s": 25, "pausa_s": 3, "cobranza": True, "pedir_nota": True, "modo": {}}
+CONFIG_DEFECTO = {"timbre_max_s": 25, "pausa_s": 3, "cobranza": True, "pedir_nota": True, "modo": {},
+                  "musica": True, "volumen": 25, "mensajes": True, "llamadas_total": 0, "hitos_dichos": []}
 
 
 def cargar_config():
@@ -347,3 +348,62 @@ def contactado_esta_semana(telefono, ruta=None, hoy=None):
                 except ValueError:
                     pass
     return False
+
+
+# ---------------------------------------------------------------- mensajes sorpresa
+
+# Cada mensaje: (texto que se muestra, texto que lee la voz). Se dicen una sola vez, al
+# completar 5, 15, 50 y 100 llamadas realizadas y luego cada 50 (150, 200, ...).
+MENSAJES = [
+    ("Hola esposa, veo que estás utilizando la aplicación que con mucho amor hice, sigue así juiciosa "
+     "trabajando JAJAJAJA, perdón si te asusté, pasaba solo a recordar que te amo",
+     "Hola esposa, veo que estás utilizando la aplicación que con mucho amor hice. Sigue así, juiciosa "
+     "trabajando. Ja ja ja ja. Perdón si te asusté, pasaba solo a recordar que te amo."),
+    ("Mmm, ¿sigues aquí? Trabajas demasiado JAJAJA deberías tomarte un break o espera, ya me encargué "
+     "yo de ello JEJE sigue trabajando, te amo",
+     "Mmm, ¿sigues aquí? Trabajas demasiado. Ja ja ja. Deberías tomarte un breik. O espera, ya me "
+     "encargué yo de ello. Je je. Sigue trabajando, te amo."),
+    ("Uff, hace tiempo que no me escuchabas, ¿verdad? Bueno, qué te digo, pensé que sería muy pesado "
+     "si saliera demasiado seguido, solo recuerda que te amo :D",
+     "Uf, hace tiempo que no me escuchabas, ¿verdad? Bueno, qué te digo, pensé que sería muy pesado "
+     "si saliera demasiado seguido. Solo recuerda que te amo."),
+    ("Owo, no me has olvidado, ¿verdad? Ando por acá recordándote que te amo y que tas muy juiciosa "
+     "trabajando :D",
+     "Oh, no me has olvidado, ¿verdad? Ando por acá recordándote que te amo, y que estás muy juiciosa "
+     "trabajando."),
+    ("¿Creíste que había desaparecido? Soy omnipresente MUAJAJAJA siempre estoy esperando el momento "
+     "para interrumpirte",
+     "¿Creíste que había desaparecido? Soy omnipresente. Mua ja ja ja. Siempre estoy esperando el "
+     "momento para interrumpirte."),
+    ("Bueno bueno, ya se está haciendo aburrido para ti tener que pasar por mis múltiples "
+     "interrupciones, ¿verdad? Para mí también es difícil crear tantos mensajes... ¿qué tal si hago "
+     "otros 100 y paramos, va? JAJAJA MUAK",
+     "Bueno, bueno. Ya se está haciendo aburrido para ti tener que pasar por mis múltiples "
+     "interrupciones, ¿verdad? Para mí también es difícil crear tantos mensajes. ¿Qué tal si hago "
+     "otros cien y paramos, va? Ja ja ja. Muac."),
+    ("Uff, ¡sí que me has usado, eh! Ni yo pensé que llegarías acá, no sé qué más decir la verdad... "
+     "mmm, te amo :D sigue trabajando :D",
+     "Uf, ¡sí que me has usado, eh! Ni yo pensé que llegarías acá. No sé qué más decir, la verdad. "
+     "Mmm, te amo. Sigue trabajando."),
+    ("Bueno, de aquí en adelante le pediré a mi asistente que haga mensajes bonitos y yo los aprobaré "
+     "xD llevo más escribiendo los mensajes que lo que tardé en programar la app",
+     "Bueno, de aquí en adelante le pediré a mi asistente que haga mensajes bonitos, y yo los "
+     "aprobaré. Llevo más tiempo escribiendo los mensajes que lo que tardé en programar la aplicación."),
+]
+
+
+def indice_hito(n):
+    """Posición en MENSAJES que corresponde a la llamada número n, o None si no es un hito."""
+    primeros = {5: 0, 15: 1, 50: 2}
+    if n in primeros:
+        return primeros[n]
+    if n >= 100 and n % 50 == 0:
+        return 3 + (n - 100) // 50
+    return None
+
+
+def mensaje_para(n, ya_dichos=()):
+    i = indice_hito(n)
+    if i is None or i >= len(MENSAJES) or n in ya_dichos:
+        return None
+    return MENSAJES[i]

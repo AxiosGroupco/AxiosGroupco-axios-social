@@ -9,6 +9,7 @@ import time
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
+import extras
 import motor
 
 # ---------------------------------------------------------------- estilo (colores de la marca)
@@ -19,6 +20,7 @@ F = "Segoe UI"
 TONOS = {  # fondo y color del título del panel principal
     "neutro": (TARJETA, TEXTO), "info": ("#e9f5f6", TEAL), "ok": ("#e3f5e9", VERDE),
     "alerta": ("#fff4d6", AMBAR), "error": ("#fde8ea", ROJO), "pausa": ("#eef2f6", SUAVE),
+    "amor": ("#fde7f0", "#b0125b"),
 }
 BOTONES = {  # tipo: (fondo, fondo al pasar el ratón, texto)
     "pri": (TEAL, TEAL_H, "#ffffff"), "peligro": (ROJO, ROJO_H, "#ffffff"), "ok": (VERDE, VERDE_H, "#ffffff"),
@@ -90,8 +92,9 @@ TUTORIAL = [
      "     Solo aparece si su celular no avisa cuándo contestan. Presiónelo apenas oiga que "
      "contestan, para que el programa no cuelgue."),
     ("Paso 7 · Resultados",
-     "«Ver resultados» abre en Excel el registro de todas las llamadas (queda en "
-     "Documentos › MarcadorAxios).\n\n"
+     "«Ver resultados» abre en Excel el registro de todas las llamadas.\n"
+     "«📁 Carpeta» abre Documentos › MarcadorAxios, donde queda todo: el programa, los registros, "
+     "la plantilla y la subcarpeta «musica».\n\n"
      "En la tabla verá el resultado de cada contacto:\n"
      "•  Contestó: se habló con la persona.\n"
      "•  No contestó: timbró y nadie respondió.\n"
@@ -102,7 +105,8 @@ TUTORIAL = [
      "En «Ajustes» puede cambiar:\n"
      "•  Los segundos de timbre antes de pasar al siguiente.\n"
      "•  Si quiere escribir una nota al terminar cada llamada.\n"
-     "•  Si son llamadas de cobranza (no repite en la semana a quien ya contestó).\n\n"
+     "•  Si son llamadas de cobranza (no repite en la semana a quien ya contestó).\n"
+     "•  La música mientras timbra y su volumen.\n\n"
      "Horario permitido por la Ley 2300: lunes a viernes de 7:00 a.m. a 7:00 p.m. y sábados de "
      "8:00 a.m. a 3:00 p.m. Domingos y festivos el programa no llama.\n\n"
      "¡Listo! Ya puede empezar."),
@@ -151,6 +155,8 @@ class App:
         self.asistido = False
         self.nota_actual = ""
         self.hechos = self.contestaron = 0
+        self.musica = extras.Musica(recurso("musica"))
+        self.musica.poner_volumen(self.cfg["volumen"])
         self.ev_colgar, self.ev_retener = threading.Event(), threading.Event()
         self.ev_continuar, self.pausado, self.detenido = threading.Event(), threading.Event(), threading.Event()
         self._iconos()
@@ -161,7 +167,9 @@ class App:
                     "Presione «Cargar lista» y elija el Excel con las columnas nombre y telefono.")
         root.protocol("WM_DELETE_WINDOW", self.cerrar)
         root.after(150, self.procesar_cola)
+        root.after(1000, self.latido_musica)
         if vigilar:
+            threading.Thread(target=extras.instalar, daemon=True).start()
             threading.Thread(target=self.vigilar_conexion, daemon=True).start()
             if not self.cfg.get("tutorial_visto"):
                 root.after(500, self.tutorial)
@@ -267,6 +275,7 @@ class App:
         pie.pack(side="bottom", fill="x", pady=(10, 0))
         Boton(pie, "Ver resultados", self.abrir_resultados).pack(side="left")
         Boton(pie, "Plantilla de lista", self.plantilla).pack(side="left", padx=8)
+        Boton(pie, "📁  Carpeta", self.abrir_carpeta).pack(side="left")
         tk.Label(pie, text="Horario permitido (Ley 2300):  L–V 7:00 a 19:00  ·  Sáb 8:00 a 15:00  ·  "
                  "domingos y festivos no", font=(F, 9), bg=FONDO, fg=SUAVE).pack(side="right")
 
@@ -383,6 +392,28 @@ class App:
         except Exception as e:
             messagebox.showerror("Plantilla", f"No se pudo crear la plantilla:\n{e}")
 
+    def abrir_carpeta(self):
+        """Abre Documentos\\MarcadorAxios: el programa, los registros, la plantilla y la música propia."""
+        try:
+            extras.carpeta_musica_propia()
+            os.startfile(motor.carpeta_datos())
+        except Exception as e:
+            messagebox.showerror("Carpeta", str(e))
+
+    # ------------------------------------------------ música y mensajes sorpresa
+    def latido_musica(self):
+        self.musica.latido()
+        self.root.after(1000, self.latido_musica)
+
+    def musica_si(self):
+        if self.cfg["musica"]:
+            self.musica.poner_volumen(self.cfg["volumen"])
+            self.musica.sonar()
+
+    def llamada_sorpresa(self, texto):
+        self.estado("☎  Llamada entrante:  tu esposo  ♥", texto, "amor")
+        self.root.bell()
+
     def abrir_resultados(self):
         try:
             os.startfile(motor.ruta_log() if os.path.exists(motor.ruta_log()) else motor.carpeta_datos())
@@ -417,6 +448,9 @@ class App:
         nota = tk.BooleanVar(value=self.cfg["pedir_nota"])
         cobr = tk.BooleanVar(value=self.cfg["cobranza"])
         modo = tk.StringVar(value=self.cfg["modo"].get(self.serial, "auto"))
+        mus = tk.BooleanVar(value=self.cfg["musica"])
+        vol = tk.IntVar(value=self.cfg["volumen"])
+        msj = tk.BooleanVar(value=self.cfg["mensajes"])
 
         def titulo(txt, fila):
             tk.Label(f, text=txt, font=(F, 10, "bold"), bg=TARJETA, fg=TEXTO).grid(
@@ -445,7 +479,21 @@ class App:
         ayuda("auto: el programa detecta solo cuando contestan.\n"
               "asistido: usted presiona «¡Contestaron!» al oír que contestan.", 10)
 
+        titulo("Ambiente", 11)
+        ttk.Checkbutton(f, text="Música suave mientras timbra (se calla al contestar)", variable=mus).grid(
+            row=12, column=0, columnspan=2, sticky="w")
+        fv = tk.Frame(f, bg=TARJETA)
+        fv.grid(row=13, column=0, columnspan=2, sticky="w", padx=(24, 0))
+        tk.Label(fv, text="Volumen:", font=(F, 9), bg=TARJETA, fg=SUAVE).pack(side="left")
+        tk.Scale(fv, from_=5, to=100, orient="horizontal", variable=vol, length=220, showvalue=False,
+                 bg=TARJETA, highlightthickness=0, troughcolor=BORDE, activebackground=TEAL).pack(side="left", padx=6)
+        ttk.Checkbutton(f, text="Mensajes de voz de vez en cuando", variable=msj).grid(
+            row=14, column=0, columnspan=2, sticky="w")
+        ayuda("Música: Kevin MacLeod (incompetech.com), licencia Creative Commons Atribución 4.0. "
+              "Para agregar la suya, copie archivos .mp3 en la subcarpeta «musica» (botón Carpeta).", 15)
+
         def guardar():
+            self.cfg["musica"], self.cfg["volumen"], self.cfg["mensajes"] = bool(mus.get()), int(vol.get()), bool(msj.get())
             try:
                 self.cfg["timbre_max_s"] = max(10, min(60, int(timbre.get())))
             except (tk.TclError, ValueError):
@@ -583,6 +631,7 @@ class App:
 
     def fin_trabajo(self, titulo, detalle="", tono="ok"):
         self.trabajando = False
+        self.musica.callar()
         self.b_pau.activo(False)
         self.b_col.activo(False)
         self.mostrar_boton_asistido()
@@ -595,12 +644,28 @@ class App:
             return
         self.detenido.set()
         self.ev_continuar.set()
+        self.musica.cerrar()
         if self.trabajando:
             self.tel.colgar()
         threading.Thread(target=self.tel.apagar_servidor, daemon=True).start()
         self.root.after(400, self.root.destroy)
 
     # ------------------------------------------------ hilo de trabajo
+    def sorpresa(self):
+        """Cuenta la llamada y, si toca (5, 15, 50, 100 y cada 50), hace la 'llamada' del esposo
+        entre una llamada y la siguiente, para no interrumpir ninguna conversación."""
+        self.cfg["llamadas_total"] += 1
+        n = self.cfg["llamadas_total"]
+        msj = motor.mensaje_para(n, self.cfg["hitos_dichos"]) if self.cfg["mensajes"] else None
+        if msj:
+            self.cfg["hitos_dichos"].append(n)
+        motor.guardar_config(self.cfg)
+        if msj:
+            self.ui(self.llamada_sorpresa, msj[0])
+            if not extras.decir(msj[1], n):
+                time.sleep(12)  # sin voz disponible: deja tiempo para leerlo
+            time.sleep(1.5)
+
     def trabajar(self, desde):
         total = len(self.contactos)
         for i in range(desde, total):
@@ -631,10 +696,12 @@ class App:
             self.ui(self.marcar_fila, i, "Llamando…", hora)
             self.ui(self.estado, f"Llamando a {c['nombre']}", f"{c['telefono']}   ·   contacto {i + 1} de {total}",
                     "info")
+            self.ui(self.musica_si)
             res, self.asistido = motor.una_llamada(
                 self.tel, c["telefono"], self.cfg["timbre_max_s"], self.ev_colgar, self.ev_retener,
                 asistido=self.asistido,
                 al_cambiar=lambda e: self.ui(self.pasar_a_asistido) if e == "ASISTIDO" else None)
+            self.ui(self.musica.callar)
             nota = ""
             if res in motor.EFECTIVOS:
                 if res == "CONTESTO":
@@ -660,6 +727,7 @@ class App:
                             "En unos segundos llamo al siguiente contacto…", "info")
             motor.registrar(c["nombre"], c["telefono"], res, nota)
             self.ui(self.fila_final, i, res, hora, nota)
+            self.sorpresa()
             time.sleep(self.cfg["pausa_s"])
         self.ui(self.fin_trabajo, "✔  Lista terminada", "Presione «Ver resultados» para abrir el registro "
                 "de las llamadas.")
@@ -679,6 +747,12 @@ def main():
             sys.exit(3)  # el adb no quedó dentro del ejecutable
         if not app.img_logo:
             sys.exit(4)  # los iconos no quedaron dentro del ejecutable
+        if len([p for p in os.listdir(recurso("musica")) if p.endswith(".mp3")]) < 8:
+            sys.exit(5)  # la música no quedó dentro del ejecutable
+        app.llamada_sorpresa(motor.MENSAJES[0][0])
+        app.musica.sonar()   # en el servidor de compilación no hay parlantes: solo no debe fallar
+        root.update()
+        app.musica.cerrar()
         root.destroy()
         return
     root.mainloop()

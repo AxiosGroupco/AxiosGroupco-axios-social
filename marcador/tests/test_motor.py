@@ -118,3 +118,13 @@ def test_lista_y_registro(tmp_path):
     motor.registrar("Ana", "3001234567", "CONTESTO", "pagará; el viernes", ruta=log)
     assert motor.contactado_esta_semana("3001234567", ruta=log)
     assert not motor.contactado_esta_semana("3001234567", ruta=log, hoy=dt.date.today() + dt.timedelta(days=7))
+
+
+def test_hitos_de_mensajes():
+    hitos = [n for n in range(1, 401) if motor.indice_hito(n) is not None]
+    assert hitos == [5, 15, 50, 100, 150, 200, 250, 300, 350, 400]
+    assert [motor.indice_hito(n) for n in hitos[:8]] == list(range(8))
+    assert motor.mensaje_para(5)[0].startswith("Hola esposa")
+    assert motor.mensaje_para(300)[0].startswith("Bueno, de aquí en adelante")
+    assert motor.mensaje_para(5, ya_dichos=[5]) is None      # una sola vez
+    assert motor.mensaje_para(6) is None and motor.mensaje_para(350) is None  # aún sin mensaje aprobado

@@ -46,6 +46,7 @@ jobs:
           --add-data "recursos/icono.ico;recursos"
           --add-data "recursos/icono_44.png;recursos"
           --add-data "recursos/icono_96.png;recursos"
+          --add-data "recursos/musica;recursos/musica"
           --add-binary "platform-tools/adb.exe;adb"
           --add-binary "platform-tools/AdbWinApi.dll;adb"
           --add-binary "platform-tools/AdbWinUsbApi.dll;adb"
@@ -57,6 +58,9 @@ jobs:
           if (-not $p.WaitForExit(90000)) { $p.Kill(); throw "El .exe no cerró a tiempo" }
           if ($p.ExitCode -ne 0) { throw "El .exe terminó con código $($p.ExitCode)" }
           exit 0
+
+      - name: Acceso directo, voz y música en Windows
+        run: python tests/prueba_windows.py dist\MarcadorAxios.exe
 
       - name: Armar paquete
         run: Copy-Item GUIA_CELULAR.md dist\

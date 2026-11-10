@@ -39,11 +39,21 @@
 | **Guardar y llamar al siguiente** | Guarda la nota de la llamada y continúa. Solo aparece si la nota está activada. |
 | **Ver resultados** | Abre en Excel el registro de todas las llamadas. |
 | **Plantilla de lista** | Crea un Excel de ejemplo para llenar con los contactos. |
+| **📁 Carpeta** | Abre `Documentos\MarcadorAxios`, donde queda todo: el programa, los registros, la plantilla y la subcarpeta `musica`. |
 | **? Ayuda** | Muestra el recorrido paso a paso (se abre solo la primera vez). |
 | **⚙ Ajustes** | Segundos de timbre, pedir o no la nota al terminar cada llamada, llamadas de cobranza y modo de detección. |
 
 Con la nota **desactivada** en Ajustes, al terminar una llamada contestada el programa sigue solo
 con el siguiente contacto a los pocos segundos; use **Pausar** si necesita un respiro.
+
+## Acceso directo, música y mensajes
+
+- La primera vez que se abre, el programa se copia a `Documentos\MarcadorAxios` y crea el acceso
+  directo **Marcador Axios** en el escritorio. Desde entonces se abre desde ahí.
+- Mientras el celular timbra suena música suave por los parlantes del computador y se calla cuando
+  contestan. Se apaga o se le cambia el volumen en **Ajustes**. Para agregar música propia, copie
+  archivos `.mp3` en la subcarpeta `musica`.
+- Música incluida: Kevin MacLeod (incompetech.com), licencia Creative Commons Atribución 4.0.
 
 ## Si algo falla
 

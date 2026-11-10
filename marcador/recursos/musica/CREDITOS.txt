@@ -1,0 +1,12 @@
+Música de Kevin MacLeod (incompetech.com)
+Licencia: Creative Commons Atribución 4.0 — https://creativecommons.org/licenses/by/4.0/
+Adaptada para esta aplicación: convertida a mono, volumen nivelado y menor calidad.
+
+01_ascensor.mp3   "Local Forecast - Elevator"
+02_clasica.mp3    "Gymnopedie No. 1" (Erik Satie)
+03_rock.mp3       "Malt Shop Bop"
+04_hiphop.mp3     "Griphop"
+05_salsa.mp3      "No Frills Salsa"
+06_jazz.mp3       "Lobby Time"
+07_funk.mp3       "Protofunk"
+08_merengue.mp3   "Notanico Merengue"
