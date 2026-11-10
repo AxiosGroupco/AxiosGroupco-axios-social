@@ -31,7 +31,7 @@ TEXTO_RESULTADO = {
 
 
 class App:
-    def __init__(self, root):
+    def __init__(self, root, vigilar=True):
         self.root = root
         root.title("Marcador Axios – llamadas una por una")
         root.geometry("900x640")
@@ -107,7 +107,8 @@ class App:
 
         root.protocol("WM_DELETE_WINDOW", self.cerrar)
         root.after(150, self.procesar_cola)
-        threading.Thread(target=self.vigilar_conexion, daemon=True).start()
+        if vigilar:
+            threading.Thread(target=self.vigilar_conexion, daemon=True).start()
 
     # ------------------------------------------------ hilo -> interfaz
     def ui(self, fn, *a):
@@ -368,12 +369,13 @@ class App:
 
 
 def main():
+    prueba = "--autotest" in sys.argv  # prueba de humo del .exe: abre, dibuja y cierra
     root = tk.Tk()
-    app = App(root)
-    if "--autotest" in sys.argv:  # prueba de humo del .exe: abre, dibuja y cierra
+    app = App(root, vigilar=not prueba)
+    if prueba:
         root.update()
-        app.detenido.set()
-        app.tel.apagar_servidor()
+        if not app.tel.adb:
+            sys.exit(3)  # el adb no quedó dentro del ejecutable
         root.destroy()
         return
     root.mainloop()

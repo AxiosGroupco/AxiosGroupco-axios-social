@@ -12,9 +12,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: marcador-exe-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   exe:
     runs-on: windows-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: marcador
@@ -44,8 +49,8 @@ jobs:
 
       - name: Prueba de humo del .exe
         run: |
-          $p = Start-Process -FilePath dist\MarcadorAxios.exe -ArgumentList "--autotest" -Wait -PassThru
-          taskkill /IM adb.exe /F 2>$null
+          $p = Start-Process -FilePath dist\MarcadorAxios.exe -ArgumentList "--autotest" -PassThru
+          if (-not $p.WaitForExit(90000)) { $p.Kill(); throw "El .exe no cerró a tiempo" }
           if ($p.ExitCode -ne 0) { throw "El .exe terminó con código $($p.ExitCode)" }
           exit 0
 
