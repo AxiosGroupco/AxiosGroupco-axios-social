@@ -38,7 +38,7 @@ def ruta_log():
 
 
 CONFIG_DEFECTO = {"timbre_max_s": 25, "pausa_s": 3, "cobranza": True, "pedir_nota": True, "modo": {},
-                  "musica": True, "volumen": 25, "salida": "celular", "mensajes": True, "llamadas_total": 0, "hitos_dichos": []}
+                  "musica": True, "volumen": 25, "salida": "celular", "bajar_tono": True, "mensajes": True, "llamadas_total": 0, "hitos_dichos": []}
 
 
 def cargar_config():

@@ -5,11 +5,15 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.content.res.AssetFileDescriptor;
 import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
 import android.util.Base64;
@@ -23,6 +27,8 @@ import java.util.Locale;
  * Reproduce música y dice mensajes en el celular. Lo controla el computador con:
  *   am start-foreground-service -n co.axiosgroup.marcadorsonido/.Sonido -a PLAY --ei vol 25
  * Acciones: PLAY (empieza o continúa), PAUSE, SAY (--es t texto en base64) y STOP.
+ * PLAY con "--ez bajar true" baja al mínimo el volumen de la llamada (el tono de espera)
+ * mientras suena la música; cualquier otra acción lo devuelve a como estaba.
  */
 public class Sonido extends Service implements MediaPlayer.OnCompletionListener, TextToSpeech.OnInitListener {
     private static final String CANAL = "sonido";
@@ -32,6 +38,15 @@ public class Sonido extends Service implements MediaPlayer.OnCompletionListener,
     private TextToSpeech voz;
     private boolean vozLista;
     private String pendiente;
+    // Volumen de llamada: 0 = llamada normal, 6 = llamada por audífonos Bluetooth.
+    private static final int[] FLUJOS_LLAMADA = {AudioManager.STREAM_VOICE_CALL, 6};
+    private final Handler reloj = new Handler(Looper.getMainLooper());
+    private final Runnable reaplicar = new Runnable() {
+        @Override
+        public void run() {
+            bajarLlamada();
+        }
+    };
 
     @Override
     public IBinder onBind(Intent i) {
@@ -45,13 +60,22 @@ public class Sonido extends Service implements MediaPlayer.OnCompletionListener,
         try {
             if ("PLAY".equals(a)) {
                 vol = Math.max(0, Math.min(100, i.getIntExtra("vol", 25))) / 100f;
+                if (i.getBooleanExtra("bajar", false)) {
+                    bajarLlamada();
+                    reloj.postDelayed(reaplicar, 1500);  // por si el celular lo reajusta al empezar a marcar
+                } else {
+                    restaurarLlamada();
+                }
                 tocar();
             } else if ("PAUSE".equals(a)) {
+                restaurarLlamada();
                 pausar();
             } else if ("SAY".equals(a)) {
+                restaurarLlamada();
                 pausar();
                 decir(new String(Base64.decode(i.getStringExtra("t"), Base64.URL_SAFE), "UTF-8"));
             } else if ("STOP".equals(a)) {
+                restaurarLlamada();
                 stopForeground(true);
                 stopSelf();
             }
@@ -74,6 +98,43 @@ public class Sonido extends Service implements MediaPlayer.OnCompletionListener,
             startForeground(1, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
         } else {
             startForeground(1, n);
+        }
+    }
+
+    // ------------------------------------------------------------ volumen de la llamada
+
+    private SharedPreferences memoria() {
+        return getSharedPreferences("volumen", MODE_PRIVATE);
+    }
+
+    /** Baja al mínimo el volumen de la llamada y recuerda (aunque se cierre la app) cuánto había. */
+    private void bajarLlamada() {
+        AudioManager am = (AudioManager) getSystemService(AUDIO_SERVICE);
+        SharedPreferences m = memoria();
+        for (int f : FLUJOS_LLAMADA) {
+            try {
+                if (!m.contains("v" + f)) m.edit().putInt("v" + f, am.getStreamVolume(f)).commit();
+                int minimo = Build.VERSION.SDK_INT >= 28 ? am.getStreamMinVolume(f) : 1;
+                am.setStreamVolume(f, minimo, 0);
+            } catch (Exception e) {
+                // algunos celulares no dejan tocar el volumen Bluetooth: se ignora
+            }
+        }
+    }
+
+    private void restaurarLlamada() {
+        reloj.removeCallbacks(reaplicar);
+        AudioManager am = (AudioManager) getSystemService(AUDIO_SERVICE);
+        SharedPreferences m = memoria();
+        for (int f : FLUJOS_LLAMADA) {
+            try {
+                if (m.contains("v" + f)) {
+                    am.setStreamVolume(f, m.getInt("v" + f, am.getStreamVolume(f)), 0);
+                    m.edit().remove("v" + f).commit();
+                }
+            } catch (Exception e) {
+                // igual que arriba
+            }
         }
     }
 
@@ -159,6 +220,7 @@ public class Sonido extends Service implements MediaPlayer.OnCompletionListener,
 
     @Override
     public void onDestroy() {
+        restaurarLlamada();
         soltar();
         if (voz != null) voz.shutdown();
         super.onDestroy();

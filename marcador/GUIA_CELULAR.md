@@ -54,6 +54,8 @@ con el siguiente contacto a los pocos segundos; use **Pausar** si necesita un re
   contestan. Para eso el programa instala solo en el celular la aplicación **Marcador Axios Sonido**
   (no hay que abrirla). Si el celular pregunta si desea instalarla, acepte; en Xiaomi / Redmi / POCO
   active antes **Instalar vía USB** en Opciones de desarrollador.
+- Mientras suena la música, el volumen de la llamada baja al mínimo para que el tono de espera
+  («piii») no la tape, y vuelve a su nivel normal apenas contestan. Se desactiva en **Ajustes**.
 - Si el celular no deja instalarla, la música suena por los parlantes del computador.
 - En **Ajustes** se apaga la música, se cambia el volumen o se elige si suena por el celular o por el
   computador. La música propia (archivos `.mp3` en la subcarpeta `musica`) solo suena por el computador.

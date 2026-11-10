@@ -349,6 +349,8 @@ class App:
         self.ui(self.aviso, "Preparando el sonido en el celular… Si el celular pregunta si desea instalar "
                 "«Marcador Axios Sonido», acepte.")
         self.sonido_cel = self.tel.instalar_sonido(recurso("MarcadorSonido.apk"))
+        if self.sonido_cel:
+            self.tel.sonido("PAUSE")  # si la vez pasada quedó bajo el volumen de llamada, lo devuelve
         self.ui(self.aviso, "" if self.sonido_cel else "No se pudo instalar el sonido en el celular: la música "
                 "sonará por el computador. (En Xiaomi active «Instalar vía USB» en Opciones de desarrollador.)")
 
@@ -473,6 +475,7 @@ class App:
         vol = tk.IntVar(value=self.cfg["volumen"])
         msj = tk.BooleanVar(value=self.cfg["mensajes"])
         sal = tk.StringVar(value=self.cfg["salida"])
+        baj = tk.BooleanVar(value=self.cfg["bajar_tono"])
 
         def titulo(txt, fila):
             tk.Label(f, text=txt, font=(F, 10, "bold"), bg=TARJETA, fg=TEXTO).grid(
@@ -512,14 +515,17 @@ class App:
         tk.Label(fv, text="   Suena por:", font=(F, 9), bg=TARJETA, fg=SUAVE).pack(side="left")
         ttk.Combobox(fv, textvariable=sal, values=("celular", "computador"), state="readonly", width=11,
                      font=(F, 9)).pack(side="left", padx=6)
+        ttk.Checkbutton(f, text="Bajar el tono de espera («piii») mientras suena la música (solo por el celular)",
+                        variable=baj).grid(row=14, column=0, columnspan=2, sticky="w")
         ttk.Checkbutton(f, text="Mensajes de voz de vez en cuando", variable=msj).grid(
-            row=14, column=0, columnspan=2, sticky="w")
+            row=16, column=0, columnspan=2, sticky="w")
         ayuda("Música: Kevin MacLeod (incompetech.com), licencia Creative Commons Atribución 4.0. "
               "Por el celular se oye en los audífonos del celular (instala sola la aplicación «Marcador Axios "
               "Sonido»). La música propia de la subcarpeta «musica» solo suena por el computador.", 15)
 
         def guardar():
             self.cfg["musica"], self.cfg["volumen"], self.cfg["mensajes"] = bool(mus.get()), int(vol.get()), bool(msj.get())
+            self.cfg["bajar_tono"] = bool(baj.get())
             if sal.get() != self.cfg["salida"]:
                 self.cfg["salida"] = sal.get()
                 if self.conectado:
@@ -687,7 +693,9 @@ class App:
         if not self.cfg["musica"]:
             return
         if self.sonido_cel and self.cfg["salida"] == "celular":
-            if self.tel.sonido("PLAY", "--ei", "vol", str(self.cfg["volumen"])):
+            bajar = self.cfg["bajar_tono"] and not self.asistido  # en modo asistido hay que oír si contestan
+            if self.tel.sonido("PLAY", "--ei", "vol", str(self.cfg["volumen"]),
+                               "--ez", "bajar", "true" if bajar else "false"):
                 return
             self.sonido_cel = False  # el celular no aceptó: de aquí en adelante, por el computador
         self.ui(self.musica_si)
