@@ -121,10 +121,51 @@ def test_lista_y_registro(tmp_path):
 
 
 def test_hitos_de_mensajes():
-    hitos = [n for n in range(1, 401) if motor.indice_hito(n) is not None]
-    assert hitos == [5, 15, 50, 100, 150, 200, 250, 300, 350, 400]
+    hitos = [n for n in range(1, 2201) if motor.indice_hito(n) is not None]
+    assert hitos[:8] == [5, 15, 50, 100, 150, 200, 250, 300] and hitos[-5:] == [2000, 2050, 2100, 2150, 2200]
     assert [motor.indice_hito(n) for n in hitos[:8]] == list(range(8))
     assert motor.mensaje_para(5)[0].startswith("Hola esposa")
     assert motor.mensaje_para(300)[0].startswith("Bueno, de aquí en adelante")
+    assert motor.mensaje_para(350)[0].startswith("Hola otra vez")
+    assert motor.mensaje_para(1000)[0].startswith("¡MIL LLAMADAS!")
+    assert "explotación laboral" in motor.mensaje_para(2000)[0]
+    assert all(motor.mensaje_para(n) for n in hitos if n <= 2000)
+    assert motor.mensaje_para(2050) is None                  # después de 2000 no hay más
     assert motor.mensaje_para(5, ya_dichos=[5]) is None      # una sola vez
-    assert motor.mensaje_para(6) is None and motor.mensaje_para(350) is None  # aún sin mensaje aprobado
+    assert motor.mensaje_para(6) is None
+
+
+def test_para_voz():
+    v = motor.para_voz("yo solo paso el recado JAJAJA")
+    assert v.endswith("ja ja ja") and "JAJAJA" not in v
+    assert motor.para_voz("A trabajar MUAJAJA") == "A trabajar mua ja ja ja"
+    assert motor.para_voz("puede continuar. MUAK") == "puede continuar. muac"
+    for _texto, voz in motor.MENSAJES[8:]:
+        assert not any(x in voz for x in ("JAJA", "JEJE", "MUAK", "MUAJ", ":D"))
+
+
+class AdbFalso(motor.Telefono):
+    def __init__(self, respuestas):
+        super().__init__("adb")
+        self.respuestas, self.ordenes = respuestas, []
+
+    def _run(self, *args, timeout=10):
+        self.ordenes.append(args)
+        for clave, resp in self.respuestas.items():
+            if clave in " ".join(args):
+                return resp
+        return ""
+
+
+def test_sonido_del_celular(tmp_path):
+    apk = tmp_path / "a.apk"
+    apk.write_bytes(b"x" * 100)
+    t = AdbFalso({"pm path": "package:/data/app/base.apk\n", "stat": "100\n"})
+    assert t.instalar_sonido(str(apk)) and not any(o[0] == "install" for o in t.ordenes)   # ya instalada
+    t = AdbFalso({"install": "Performing Streamed Install\nSuccess\n"})
+    assert t.instalar_sonido(str(apk)) and any(o[0] == "install" for o in t.ordenes)
+    assert not AdbFalso({"install": "Failure [INSTALL_FAILED_USER_RESTRICTED]"}).instalar_sonido(str(apk))
+    ok = AdbFalso({"start-foreground-service": "Starting service: Intent { act=PLAY }"})
+    assert ok.sonido("PLAY", "--ei", "vol", "25") and ok.decir("Hola, ¿cómo estás?") > 3
+    assert "--es" in ok.ordenes[-1] and " " not in ok.ordenes[-1][-1]      # el texto viaja codificado
+    assert not AdbFalso({"start-foreground-service": "Error: app is in background"}).sonido("PLAY")

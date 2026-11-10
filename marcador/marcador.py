@@ -153,6 +153,7 @@ class App:
         self.contactos = []
         self.conectado, self.serial, self.trabajando = False, "", False
         self.asistido = False
+        self.sonido_cel = False   # la aplicación auxiliar del celular está instalada y responde
         self.nota_actual = ""
         self.hechos = self.contestaron = 0
         self.musica = extras.Musica(recurso("musica"))
@@ -336,7 +337,27 @@ class App:
                         self.tel.preparar()
                         modelo = self.tel.modelo()
                     self.ui(self.mostrar_conexion, est, serial, modelo)
+                    if est == "listo":
+                        self.preparar_sonido_cel()
             time.sleep(2)
+
+    def preparar_sonido_cel(self):
+        """Instala en el celular, si hace falta, la aplicación que pone la música y la voz allá."""
+        self.sonido_cel = False
+        if self.cfg["salida"] != "celular":
+            return
+        self.ui(self.aviso, "Preparando el sonido en el celular… Si el celular pregunta si desea instalar "
+                "«Marcador Axios Sonido», acepte.")
+        self.sonido_cel = self.tel.instalar_sonido(recurso("MarcadorSonido.apk"))
+        self.ui(self.aviso, "" if self.sonido_cel else "No se pudo instalar el sonido en el celular: la música "
+                "sonará por el computador. (En Xiaomi active «Instalar vía USB» en Opciones de desarrollador.)")
+
+    def aviso(self, texto):
+        if texto:
+            self.l_aviso.config(text=texto)
+            self.f_aviso.pack(fill="x", before=self.cuerpo)
+        elif self.conectado:
+            self.f_aviso.pack_forget()
 
     def mostrar_conexion(self, est, serial, modelo=""):
         corto, color, ayuda = ESTADO_CONEXION[est]
@@ -451,6 +472,7 @@ class App:
         mus = tk.BooleanVar(value=self.cfg["musica"])
         vol = tk.IntVar(value=self.cfg["volumen"])
         msj = tk.BooleanVar(value=self.cfg["mensajes"])
+        sal = tk.StringVar(value=self.cfg["salida"])
 
         def titulo(txt, fila):
             tk.Label(f, text=txt, font=(F, 10, "bold"), bg=TARJETA, fg=TEXTO).grid(
@@ -487,13 +509,21 @@ class App:
         tk.Label(fv, text="Volumen:", font=(F, 9), bg=TARJETA, fg=SUAVE).pack(side="left")
         tk.Scale(fv, from_=5, to=100, orient="horizontal", variable=vol, length=220, showvalue=False,
                  bg=TARJETA, highlightthickness=0, troughcolor=BORDE, activebackground=TEAL).pack(side="left", padx=6)
+        tk.Label(fv, text="   Suena por:", font=(F, 9), bg=TARJETA, fg=SUAVE).pack(side="left")
+        ttk.Combobox(fv, textvariable=sal, values=("celular", "computador"), state="readonly", width=11,
+                     font=(F, 9)).pack(side="left", padx=6)
         ttk.Checkbutton(f, text="Mensajes de voz de vez en cuando", variable=msj).grid(
             row=14, column=0, columnspan=2, sticky="w")
         ayuda("Música: Kevin MacLeod (incompetech.com), licencia Creative Commons Atribución 4.0. "
-              "Para agregar la suya, copie archivos .mp3 en la subcarpeta «musica» (botón Carpeta).", 15)
+              "Por el celular se oye en los audífonos del celular (instala sola la aplicación «Marcador Axios "
+              "Sonido»). La música propia de la subcarpeta «musica» solo suena por el computador.", 15)
 
         def guardar():
             self.cfg["musica"], self.cfg["volumen"], self.cfg["mensajes"] = bool(mus.get()), int(vol.get()), bool(msj.get())
+            if sal.get() != self.cfg["salida"]:
+                self.cfg["salida"] = sal.get()
+                if self.conectado:
+                    threading.Thread(target=self.preparar_sonido_cel, daemon=True).start()
             try:
                 self.cfg["timbre_max_s"] = max(10, min(60, int(timbre.get())))
             except (tk.TclError, ValueError):
@@ -647,10 +677,26 @@ class App:
         self.musica.cerrar()
         if self.trabajando:
             self.tel.colgar()
+        if self.sonido_cel:
+            threading.Thread(target=self.tel.sonido, args=("STOP",), daemon=True).start()
         threading.Thread(target=self.tel.apagar_servidor, daemon=True).start()
         self.root.after(400, self.root.destroy)
 
     # ------------------------------------------------ hilo de trabajo
+    def musica_empezar(self):
+        if not self.cfg["musica"]:
+            return
+        if self.sonido_cel and self.cfg["salida"] == "celular":
+            if self.tel.sonido("PLAY", "--ei", "vol", str(self.cfg["volumen"])):
+                return
+            self.sonido_cel = False  # el celular no aceptó: de aquí en adelante, por el computador
+        self.ui(self.musica_si)
+
+    def musica_parar(self):
+        if self.sonido_cel and self.cfg["musica"] and self.cfg["salida"] == "celular":
+            self.tel.sonido("PAUSE")
+        self.ui(self.musica.callar)
+
     def sorpresa(self):
         """Cuenta la llamada y, si toca (5, 15, 50, 100 y cada 50), hace la 'llamada' del esposo
         entre una llamada y la siguiente, para no interrumpir ninguna conversación."""
@@ -662,7 +708,12 @@ class App:
         motor.guardar_config(self.cfg)
         if msj:
             self.ui(self.llamada_sorpresa, msj[0])
-            if not extras.decir(msj[1], n):
+            espera = 0
+            if not extras.hay_grabacion(n) and self.sonido_cel and self.cfg["salida"] == "celular":
+                espera = self.tel.decir(msj[1])          # voz del celular (se oye por sus audífonos)
+            if espera:
+                time.sleep(espera)
+            elif not extras.decir(msj[1], n):            # grabación propia o voz del computador
                 time.sleep(12)  # sin voz disponible: deja tiempo para leerlo
             time.sleep(1.5)
 
@@ -696,12 +747,12 @@ class App:
             self.ui(self.marcar_fila, i, "Llamando…", hora)
             self.ui(self.estado, f"Llamando a {c['nombre']}", f"{c['telefono']}   ·   contacto {i + 1} de {total}",
                     "info")
-            self.ui(self.musica_si)
+            self.musica_empezar()
             res, self.asistido = motor.una_llamada(
                 self.tel, c["telefono"], self.cfg["timbre_max_s"], self.ev_colgar, self.ev_retener,
                 asistido=self.asistido,
                 al_cambiar=lambda e: self.ui(self.pasar_a_asistido) if e == "ASISTIDO" else None)
-            self.ui(self.musica.callar)
+            self.musica_parar()
             nota = ""
             if res in motor.EFECTIVOS:
                 if res == "CONTESTO":
@@ -749,6 +800,8 @@ def main():
             sys.exit(4)  # los iconos no quedaron dentro del ejecutable
         if len([p for p in os.listdir(recurso("musica")) if p.endswith(".mp3")]) < 8:
             sys.exit(5)  # la música no quedó dentro del ejecutable
+        if not os.path.exists(recurso("MarcadorSonido.apk")):
+            sys.exit(6)  # la aplicación del celular no quedó dentro del ejecutable
         app.llamada_sorpresa(motor.MENSAJES[0][0])
         app.musica.sonar()   # en el servidor de compilación no hay parlantes: solo no debe fallar
         root.update()

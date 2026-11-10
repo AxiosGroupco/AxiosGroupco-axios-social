@@ -1,6 +1,7 @@
 """Motor del marcador progresivo: control del celular por adb, reglas de horario
 (Ley 2300 de 2023), lectura de listas y registro de resultados. No depende de la
 interfaz gráfica, para poder probarlo de forma automática."""
+import base64
 import csv
 import datetime as dt
 import json
@@ -37,7 +38,7 @@ def ruta_log():
 
 
 CONFIG_DEFECTO = {"timbre_max_s": 25, "pausa_s": 3, "cobranza": True, "pedir_nota": True, "modo": {},
-                  "musica": True, "volumen": 25, "mensajes": True, "llamadas_total": 0, "hitos_dichos": []}
+                  "musica": True, "volumen": 25, "salida": "celular", "mensajes": True, "llamadas_total": 0, "hitos_dichos": []}
 
 
 def cargar_config():
@@ -101,6 +102,9 @@ def interpretar_estado(volcado):
     return preciso, ocupado
 
 
+PAQUETE_SONIDO = "co.axiosgroup.marcadorsonido"
+
+
 class Telefono:
     def __init__(self, adb):
         self.adb = adb
@@ -142,6 +146,34 @@ class Telefono:
 
     def colgar(self):
         self._run("shell", "input", "keyevent", "KEYCODE_ENDCALL")
+
+    # --- aplicación auxiliar de sonido en el celular ---
+    def instalar_sonido(self, apk):
+        """Instala (o actualiza) la aplicación auxiliar si hace falta. True si quedó lista."""
+        if not (self.adb and os.path.exists(apk)):
+            return False
+        ruta = self._run("shell", "pm", "path", PAQUETE_SONIDO).strip().replace("package:", "").split("\n")[0]
+        if ruta and self._run("shell", "stat", "-c", "%s", ruta).strip() == str(os.path.getsize(apk)):
+            return True  # ya está la misma versión
+        salida = self._run("install", "-r", apk, timeout=180)
+        if "Success" not in salida and ruta:  # firmada con otra llave: quitar la anterior y reinstalar
+            self._run("uninstall", PAQUETE_SONIDO, timeout=60)
+            salida = self._run("install", apk, timeout=180)
+        if "Success" not in salida:
+            return False
+        self._run("shell", "pm", "grant", PAQUETE_SONIDO, "android.permission.POST_NOTIFICATIONS")
+        return True
+
+    def sonido(self, accion, *extra):
+        """Ordena PLAY / PAUSE / SAY / STOP a la aplicación auxiliar. True si el celular aceptó."""
+        salida = self._run("shell", "am", "start-foreground-service", "-n", f"{PAQUETE_SONIDO}/.Sonido",
+                           "-a", accion, *extra)
+        return "Starting service" in salida and "Error" not in salida and "Exception" not in salida
+
+    def decir(self, texto):
+        """Dice el texto con la voz del celular. Devuelve los segundos que conviene esperar, o 0 si falló."""
+        t = base64.urlsafe_b64encode(texto.encode("utf-8")).decode("ascii")
+        return 3 + len(texto) / 12 if self.sonido("SAY", "--es", "t", t) else 0
 
     def apagar_servidor(self):
         self._run("kill-server")
@@ -390,6 +422,97 @@ MENSAJES = [
      "Bueno, de aquí en adelante le pediré a mi asistente que haga mensajes bonitos, y yo los "
      "aprobaré. Llevo más tiempo escribiendo los mensajes que lo que tardé en programar la aplicación."),
 ]
+
+
+# De 350 en adelante: un solo texto; lo que lee la voz se deriva con para_voz().
+MENSAJES_SIGUIENTES = [
+    # 350
+    "Hola otra vez, aquí el asistente de tu esposo reportándose. Me pidió que te dijera algo bonito, pero "
+    "la verdad él lo dice mejor: te ama. Yo solo paso el recado JAJAJA",
+    "¡Cuatrocientas llamadas! A este paso vas a dejar sin trabajo al celular. Tómate un vasito de agua, "
+    "estira las piernas y acuérdate de que alguien te ama mucho",
+    "Interrumpimos su jornada laboral para un anuncio importante: tu esposo te ama. Eso es todo, puede "
+    "continuar. MUAK",
+    "¡Quinientas! Esto ya merece premio. No sé cuál, pregúntale a tu esposo, yo solo soy la voz JEJE. Te "
+    "ama, por si se te había olvidado en las últimas cincuenta llamadas",
+    "¿Sabes qué es lo mejor de esta aplicación? Que la persona para la que se hizo eres tú. Sigue así de "
+    "juiciosa, te amo",
+    "Seiscientas llamadas y sigo aquí, fiel como siempre. Bueno, fiel cada cincuenta llamadas JAJAJA. Te "
+    "amo, respira hondo y sigue",
+    "Pausa de diez segundos patrocinada por tu esposo: cierra los ojos, respira... ya, listo. Te amo. A "
+    "trabajar MUAJAJA",
+    "Si estás oyendo esto es porque eres la persona más trabajadora que conozco. Estoy muy orgulloso de "
+    "ti. Te amo, nos vemos en cincuenta llamadas",
+    # 750
+    "Setecientas cincuenta. Dato curioso: en todo este tiempo no he dejado de pensar en ti ni una sola "
+    "llamada. Bueno, soy una grabación, pero la intención es real JAJAJA. Te amo",
+    "Ochocientas llamadas. Si cobraras un beso por cada una, ya te debería ochocientos. Los pago esta "
+    "noche, con intereses. MUAK",
+    "Reporte del clima: cien por ciento de probabilidad de que tu esposo te ame hoy. Y mañana. Y pasado "
+    "mañana. Sigue trabajando",
+    "Novecientas. ¿Ya tomaste agua? ¿Ya estiraste la espalda? No me hagas ir hasta allá. Mentira, sí "
+    "quiero ir hasta allá. Te amo",
+    "Mensaje serio, sin risas: gracias por todo lo que haces. De verdad. Listo, ya, se acabó la seriedad "
+    "JAJAJA. Te amo",
+    # 1000
+    "¡MIL LLAMADAS! Suenen las trompetas. Eres oficialmente una leyenda de esta aplicación. Tu esposo "
+    "está orgullosísimo y te ama mil veces, una por cada llamada",
+    "Mil cincuenta. Pensé que después de mil me iban a jubilar, pero aquí sigo, interrumpiéndote con "
+    "cariño JEJE. Te amo",
+    "Mil cien llamadas. Si alguna persona te contestó de mal genio hoy, que sepas que aquí hay alguien "
+    "que siempre te contesta con amor",
+    "Pregunta rápida: ¿quién es la esposa más juiciosa del mundo? Pista: está oyendo este mensaje. Te "
+    "amo, sigue así",
+    "Mil doscientas. A estas alturas ya debes conocer mi voz mejor que la de tus clientes JAJAJA. Solo "
+    "paso a decirte que te amo",
+    "Hora de un mini descanso: mueve los hombros, mira por la ventana y sonríe, que alguien está pensando "
+    "en ti ahora mismo. Te amo",
+    "Mil trescientas. Yo ya perdí la cuenta, menos mal la aplicación no. Lo que nunca pierdo de vista es "
+    "que te amo. MUAK",
+    "¿Sigues ahí? Claro que sigues ahí, si eres imparable. Ojalá yo tuviera tu disciplina JEJE. Te amo "
+    "mucho",
+    "Mil cuatrocientas llamadas. Propongo celebrar con tu comida favorita. Tú eliges, yo invito. Te amo",
+    "Recordatorio amistoso: eres más que tu trabajo, y aun así lo haces increíble. Tu esposo te ama y te "
+    "admira",
+    # 1500
+    "¡Mil quinientas! Esto ya es nivel experto. Si hubiera un diploma te lo estaría entregando ahora "
+    "mismo, con beso incluido. MUAK",
+    "Mil quinientas cincuenta. Te cuento un secreto: cada vez que suena este mensaje, alguien al otro "
+    "lado sonríe imaginándote. Ese alguien te ama",
+    "Mil seiscientas. No tengo nada nuevo que decir, así que repito lo importante: te amo, te amo, te "
+    "amo. Listo, sigue JAJAJA",
+    "Pausa activa obligatoria: párate, da una vuelta y vuelve. Yo te espero aquí, no me voy a ningún "
+    "lado. Literalmente no puedo JEJE. Te amo",
+    "Mil setecientas llamadas. Ya quedan poquitos mensajes, así que este va con doble dosis de cariño: te "
+    "amo y te amo",
+    "Si hoy fue un día pesado, respira. Lo estás haciendo muy bien. Y cuando termines, aquí hay alguien "
+    "esperándote con un abrazo. Te amo",
+    "Mil ochocientas. A este ritmo voy a tener que pedirle a mi asistente otro lote de mensajes. Mentira, "
+    "ya casi se acaban. Disfrútalos. Te amo",
+    "Mil ochocientas cincuenta. Gracias por tu paciencia con los clientes, con el celular, con esta "
+    "aplicación y sobre todo conmigo JAJAJA. Te amo",
+    "Mil novecientas llamadas. Penúltimo aviso de que alguien te ama con locura. El que sigue es de los "
+    "últimos, no llores. Bueno, un poquito sí",
+    "Mil novecientas cincuenta. Solo falta un mensaje más. He disfrutado mucho interrumpirte todo este "
+    "tiempo. Prepárate para la despedida, te amo",
+    # 2000
+    "¡Dos mil llamadas! Este es mi último mensaje: mis abogados dicen que seguir interrumpiéndote después "
+    "de dos mil llamadas ya cuenta como explotación laboral, y no quiero una demanda JAJAJA. Gracias por "
+    "cada llamada. Ya no saldré más por aquí, pero te sigo amando todos los días. MUAK",
+]
+
+
+def para_voz(texto):
+    """Adapta un mensaje para que la voz virtual lo lea natural (risas, besos y caritas)."""
+    t = re.sub(r"\bMUAJ[AJ]*\b", "mua ja ja ja", texto)
+    t = re.sub(r"\b(?:[JH]A){2,}[JH]?\b", "ja ja ja", t)
+    t = re.sub(r"\b(?:JE){2,}\b", "je je", t)
+    t = re.sub(r"\bMUAK\b", "muac", t)
+    t = re.sub(r":D|xD", "", t)
+    return re.sub(r"\s+", " ", t).strip()
+
+
+MENSAJES += [(m, para_voz(m)) for m in MENSAJES_SIGUIENTES]
 
 
 def indice_hito(n):

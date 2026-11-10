@@ -101,6 +101,10 @@ $s.Speak($env:MARCADOR_TEXTO)
 """
 
 
+def hay_grabacion(numero):
+    return any(os.path.exists(os.path.join(motor.carpeta_datos(), "mensajes", f"{numero}.{e}")) for e in ("mp3", "wav"))
+
+
 def decir(texto, numero=None):
     """Dice el mensaje y espera a que termine (llamar desde el hilo de trabajo).
     Si existe una grabación propia en Documentos\\MarcadorAxios\\mensajes\\<numero>.mp3 o .wav,

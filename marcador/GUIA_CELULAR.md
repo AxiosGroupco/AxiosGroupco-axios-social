@@ -50,9 +50,13 @@ con el siguiente contacto a los pocos segundos; use **Pausar** si necesita un re
 
 - La primera vez que se abre, el programa se copia a `Documentos\MarcadorAxios` y crea el acceso
   directo **Marcador Axios** en el escritorio. Desde entonces se abre desde ahí.
-- Mientras el celular timbra suena música suave por los parlantes del computador y se calla cuando
-  contestan. Se apaga o se le cambia el volumen en **Ajustes**. Para agregar música propia, copie
-  archivos `.mp3` en la subcarpeta `musica`.
+- Mientras el celular timbra suena música suave **por los audífonos del celular** y se calla cuando
+  contestan. Para eso el programa instala solo en el celular la aplicación **Marcador Axios Sonido**
+  (no hay que abrirla). Si el celular pregunta si desea instalarla, acepte; en Xiaomi / Redmi / POCO
+  active antes **Instalar vía USB** en Opciones de desarrollador.
+- Si el celular no deja instalarla, la música suena por los parlantes del computador.
+- En **Ajustes** se apaga la música, se cambia el volumen o se elige si suena por el celular o por el
+  computador. La música propia (archivos `.mp3` en la subcarpeta `musica`) solo suena por el computador.
 - Música incluida: Kevin MacLeod (incompetech.com), licencia Creative Commons Atribución 4.0.
 
 ## Si algo falla

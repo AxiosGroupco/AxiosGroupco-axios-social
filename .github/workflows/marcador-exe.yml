@@ -17,7 +17,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  apk:
+    # Aplicación auxiliar del celular (música y voz): se compila con el SDK de Android del runner.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compilar MarcadorSonido.apk
+        run: marcador/android/compilar.sh "${{ github.run_number }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MarcadorSonido-apk
+          path: marcador/android/build/MarcadorSonido.apk
+          retention-days: 7
+
   exe:
+    needs: apk
     runs-on: windows-latest
     timeout-minutes: 15
     defaults:
@@ -28,6 +43,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: MarcadorSonido-apk
+          path: marcador/recursos
 
       - name: Dependencias y pruebas
         run: |
@@ -47,6 +67,7 @@ jobs:
           --add-data "recursos/icono_44.png;recursos"
           --add-data "recursos/icono_96.png;recursos"
           --add-data "recursos/musica;recursos/musica"
+          --add-data "recursos/MarcadorSonido.apk;recursos"
           --add-binary "platform-tools/adb.exe;adb"
           --add-binary "platform-tools/AdbWinApi.dll;adb"
           --add-binary "platform-tools/AdbWinUsbApi.dll;adb"

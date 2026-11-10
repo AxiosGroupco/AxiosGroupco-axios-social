@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="co.axiosgroup.marcadorsonido">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Necesario desde Android 11 para poder usar la voz del sistema -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
+    <application
+        android:label="Marcador Axios Sonido"
+        android:icon="@drawable/icono"
+        android:allowBackup="false">
+
+        <activity android:name=".Inicio" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Solo lo puede controlar el computador por el cable USB (adb tiene el permiso DUMP;
+             las demás aplicaciones del celular no). -->
+        <service
+            android:name=".Sonido"
+            android:exported="true"
+            android:permission="android.permission.DUMP"
+            android:foregroundServiceType="mediaPlayback" />
+    </application>
+</manifest>
