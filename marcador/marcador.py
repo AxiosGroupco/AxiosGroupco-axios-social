@@ -140,6 +140,41 @@ class Boton(tk.Button):
                     cursor="hand2" if si else "arrow")
 
 
+class Interruptor(tk.Frame):
+    """Interruptor encendido/apagado con el estado escrito al lado (ACTIVADO / DESACTIVADO)."""
+
+    def __init__(self, padre, texto, variable, al_cambiar=None):
+        super().__init__(padre, bg=TARJETA)
+        self.var, self.al_cambiar = variable, al_cambiar
+        self.lienzo = tk.Canvas(self, width=46, height=24, bg=TARJETA, highlightthickness=0, cursor="hand2")
+        self.lienzo.pack(side="left")
+        self.l_texto = tk.Label(self, text=texto, font=(F, 10), bg=TARJETA, fg=TEXTO, cursor="hand2")
+        self.l_texto.pack(side="left", padx=(8, 10))
+        self.l_estado = tk.Label(self, font=(F, 8, "bold"), padx=7, pady=1, cursor="hand2")
+        self.l_estado.pack(side="left")
+        for w in (self.lienzo, self.l_texto, self.l_estado):
+            w.bind("<Button-1>", self.alternar)
+        self.dibujar()
+
+    def alternar(self, _=None):
+        self.var.set(not self.var.get())
+        self.dibujar()
+        if self.al_cambiar:
+            self.al_cambiar()
+
+    def dibujar(self):
+        si = bool(self.var.get())
+        fondo, c = (VERDE if si else "#b4bfcc"), self.lienzo
+        c.delete("all")
+        c.create_oval(1, 1, 23, 23, fill=fondo, outline=fondo)
+        c.create_oval(23, 1, 45, 23, fill=fondo, outline=fondo)
+        c.create_rectangle(12, 1, 34, 23, fill=fondo, outline=fondo)
+        x = 25 if si else 3
+        c.create_oval(x, 3, x + 18, 21, fill="#ffffff", outline="#ffffff")
+        self.l_estado.config(text="ACTIVADO" if si else "DESACTIVADO", bg="#d7f0df" if si else "#e5e9ee",
+                             fg=VERDE if si else SUAVE)
+
+
 class App:
     def __init__(self, root, vigilar=True):
         self.root = root
@@ -483,20 +518,31 @@ class App:
 
         def ayuda(txt, fila):
             tk.Label(f, text=txt, font=(F, 9), bg=TARJETA, fg=SUAVE, justify="left", wraplength=430).grid(
-                row=fila, column=0, columnspan=2, sticky="w", padx=(24, 0))
+                row=fila, column=0, columnspan=2, sticky="w", padx=(54, 0))
 
         titulo("Tiempo de timbre", 0)
         tk.Label(f, text="Segundos que deja timbrar antes de pasar al siguiente:", font=(F, 10), bg=TARJETA,
                  fg=TEXTO).grid(row=1, column=0, sticky="w")
         ttk.Spinbox(f, from_=10, to=60, textvariable=timbre, width=5, font=(F, 10)).grid(row=1, column=1, padx=8)
         titulo("Al terminar cada llamada contestada", 2)
-        ttk.Checkbutton(f, text="Pedir una nota o detalle de la llamada", variable=nota).grid(
-            row=3, column=0, columnspan=2, sticky="w")
-        ayuda("Activado: espera a que escriba la nota y presione «Guardar y llamar al siguiente».\n"
-              "Desactivado: sigue solo con el siguiente contacto a los pocos segundos.", 4)
+        fn = tk.Frame(f, bg=TARJETA)
+        fn.grid(row=4, column=0, columnspan=2, sticky="w", padx=(54, 0))
+        l_si = tk.Label(fn, text="Activado: espera a que escriba la nota y presione «Guardar y llamar al "
+                        "siguiente».", bg=TARJETA, justify="left", wraplength=420)
+        l_no = tk.Label(fn, text="Desactivado: sigue solo con el siguiente contacto a los pocos segundos.",
+                        bg=TARJETA, justify="left", wraplength=420)
+        l_si.pack(anchor="w")
+        l_no.pack(anchor="w")
+
+        def resaltar_nota():
+            for etiqueta, vigente in ((l_si, nota.get()), (l_no, not nota.get())):
+                etiqueta.config(font=(F, 9, "bold") if vigente else (F, 9), fg=TEXTO if vigente else "#9aa7b5")
+
+        Interruptor(f, "Pedir una nota o detalle de la llamada", nota, resaltar_nota).grid(
+            row=3, column=0, columnspan=2, sticky="w", pady=2)
+        resaltar_nota()
         titulo("Cumplimiento (Ley 2300)", 5)
-        ttk.Checkbutton(f, text="Son llamadas de cobranza", variable=cobr).grid(
-            row=6, column=0, columnspan=2, sticky="w")
+        Interruptor(f, "Son llamadas de cobranza", cobr).grid(row=6, column=0, columnspan=2, sticky="w", pady=2)
         ayuda("No vuelve a llamar en la misma semana a quien ya contestó.", 7)
         titulo("Detección de «contestaron»", 8)
         ttk.Combobox(f, textvariable=modo, values=("auto", "asistido"), state="readonly", width=10,
@@ -505,20 +551,17 @@ class App:
               "asistido: usted presiona «¡Contestaron!» al oír que contestan.", 10)
 
         titulo("Ambiente", 11)
-        ttk.Checkbutton(f, text="Música suave mientras timbra (se calla al contestar)", variable=mus).grid(
-            row=12, column=0, columnspan=2, sticky="w")
+        Interruptor(f, "Música suave mientras timbra (se calla al contestar)", mus).grid(row=12, column=0, columnspan=2, sticky="w", pady=2)
         fv = tk.Frame(f, bg=TARJETA)
-        fv.grid(row=13, column=0, columnspan=2, sticky="w", padx=(24, 0))
+        fv.grid(row=13, column=0, columnspan=2, sticky="w", padx=(54, 0), pady=(0, 4))
         tk.Label(fv, text="Volumen:", font=(F, 9), bg=TARJETA, fg=SUAVE).pack(side="left")
         tk.Scale(fv, from_=5, to=100, orient="horizontal", variable=vol, length=220, showvalue=False,
                  bg=TARJETA, highlightthickness=0, troughcolor=BORDE, activebackground=TEAL).pack(side="left", padx=6)
         tk.Label(fv, text="   Suena por:", font=(F, 9), bg=TARJETA, fg=SUAVE).pack(side="left")
         ttk.Combobox(fv, textvariable=sal, values=("celular", "computador"), state="readonly", width=11,
                      font=(F, 9)).pack(side="left", padx=6)
-        ttk.Checkbutton(f, text="Bajar el tono de espera («piii») mientras suena la música (solo por el celular)",
-                        variable=baj).grid(row=14, column=0, columnspan=2, sticky="w")
-        ttk.Checkbutton(f, text="Mensajes de voz de vez en cuando", variable=msj).grid(
-            row=16, column=0, columnspan=2, sticky="w")
+        Interruptor(f, "Bajar el tono de espera («piii») mientras suena la música (solo por el celular)", baj).grid(row=14, column=0, columnspan=2, sticky="w", pady=2)
+        Interruptor(f, "Mensajes de voz de vez en cuando", msj).grid(row=16, column=0, columnspan=2, sticky="w", pady=2)
         ayuda("Música: Kevin MacLeod (incompetech.com), licencia Creative Commons Atribución 4.0. "
               "Por el celular se oye en los audífonos del celular (instala sola la aplicación «Marcador Axios "
               "Sonido»). La música propia de la subcarpeta «musica» solo suena por el computador.", 15)
