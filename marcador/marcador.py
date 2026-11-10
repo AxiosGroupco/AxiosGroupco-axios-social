@@ -711,6 +711,8 @@ class App:
     def fin_trabajo(self, titulo, detalle="", tono="ok"):
         self.trabajando = False
         self.musica.callar()
+        if self.sonido_cel:
+            threading.Thread(target=self.tel.cerrar_sonido, daemon=True).start()
         self.b_pau.activo(False)
         self.b_col.activo(False)
         self.mostrar_boton_asistido()
@@ -727,7 +729,7 @@ class App:
         if self.trabajando:
             self.tel.colgar()
         if self.sonido_cel:
-            threading.Thread(target=self.tel.sonido, args=("STOP",), daemon=True).start()
+            self.tel.cerrar_sonido()  # se espera a que termine: no dejar la aplicación abierta en el celular
         threading.Thread(target=self.tel.apagar_servidor, daemon=True).start()
         self.root.after(400, self.root.destroy)
 

@@ -56,6 +56,8 @@ con el siguiente contacto a los pocos segundos; use **Pausar** si necesita un re
   active antes **Instalar vía USB** en Opciones de desarrollador.
 - Mientras suena la música, el volumen de la llamada baja al mínimo para que el tono de espera
   («piii») no la tape, y vuelve a su nivel normal apenas contestan. Se desactiva en **Ajustes**.
+- La aplicación del celular se cierra sola al terminar la lista, al cerrar el programa en el
+  computador o al desconectar el cable USB; no queda nada abierto en el celular.
 - Si el celular no deja instalarla, la música suena por los parlantes del computador.
 - En **Ajustes** se apaga la música, se cambia el volumen o se elige si suena por el celular o por el
   computador. La música propia (archivos `.mp3` en la subcarpeta `musica`) solo suena por el computador.

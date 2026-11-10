@@ -169,3 +169,9 @@ def test_sonido_del_celular(tmp_path):
     assert ok.sonido("PLAY", "--ei", "vol", "25") and ok.decir("Hola, ¿cómo estás?") > 3
     assert "--es" in ok.ordenes[-1] and " " not in ok.ordenes[-1][-1]      # el texto viaja codificado
     assert not AdbFalso({"start-foreground-service": "Error: app is in background"}).sonido("PLAY")
+
+
+def test_cerrar_sonido_del_celular():
+    t = AdbFalso({"start-foreground-service": "Starting service: Intent { act=STOP }"})
+    t.cerrar_sonido()
+    assert "STOP" in t.ordenes[0] and "force-stop" in t.ordenes[1]

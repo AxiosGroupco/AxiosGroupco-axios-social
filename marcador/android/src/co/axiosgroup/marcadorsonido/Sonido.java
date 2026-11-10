@@ -4,7 +4,10 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.content.res.AssetFileDescriptor;
@@ -48,6 +51,43 @@ public class Sonido extends Service implements MediaPlayer.OnCompletionListener,
         }
     };
 
+    // Cierre automático: sin cable USB, o si el computador lleva 10 minutos sin dar órdenes.
+    private static final long SIN_ORDENES_MS = 10 * 60 * 1000;
+    private static final String USB_ESTADO = "android.hardware.usb.action.USB_STATE";
+    private final Runnable apagar = new Runnable() {
+        @Override
+        public void run() {
+            cerrar();
+        }
+    };
+    private final BroadcastReceiver cable = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context c, Intent i) {
+            if (Intent.ACTION_POWER_DISCONNECTED.equals(i.getAction())
+                    || (USB_ESTADO.equals(i.getAction()) && !i.getBooleanExtra("connected", true))) {
+                cerrar();
+            }
+        }
+    };
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        IntentFilter f = new IntentFilter(Intent.ACTION_POWER_DISCONNECTED);
+        f.addAction(USB_ESTADO);
+        if (Build.VERSION.SDK_INT >= 33) {
+            registerReceiver(cable, f, Context.RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(cable, f);
+        }
+    }
+
+    private void cerrar() {
+        restaurarLlamada();
+        stopForeground(true);
+        stopSelf();
+    }
+
     @Override
     public IBinder onBind(Intent i) {
         return null;
@@ -56,6 +96,8 @@ public class Sonido extends Service implements MediaPlayer.OnCompletionListener,
     @Override
     public int onStartCommand(Intent i, int flags, int id) {
         primerPlano();
+        reloj.removeCallbacks(apagar);
+        reloj.postDelayed(apagar, SIN_ORDENES_MS);
         String a = i == null ? null : i.getAction();
         try {
             if ("PLAY".equals(a)) {
@@ -75,9 +117,7 @@ public class Sonido extends Service implements MediaPlayer.OnCompletionListener,
                 pausar();
                 decir(new String(Base64.decode(i.getStringExtra("t"), Base64.URL_SAFE), "UTF-8"));
             } else if ("STOP".equals(a)) {
-                restaurarLlamada();
-                stopForeground(true);
-                stopSelf();
+                cerrar();
             }
         } catch (Exception e) {
             // Nunca tumbar el servicio por un problema de sonido: el marcado es lo importante.
@@ -220,9 +260,16 @@ public class Sonido extends Service implements MediaPlayer.OnCompletionListener,
 
     @Override
     public void onDestroy() {
+        reloj.removeCallbacks(apagar);
+        try {
+            unregisterReceiver(cable);
+        } catch (Exception e) {
+            // ya no estaba registrado
+        }
         restaurarLlamada();
         soltar();
         if (voz != null) voz.shutdown();
         super.onDestroy();
+        android.os.Process.killProcess(android.os.Process.myPid());  // no dejar la aplicación abierta
     }
 }

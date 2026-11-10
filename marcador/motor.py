@@ -170,6 +170,11 @@ class Telefono:
                            "-a", accion, *extra)
         return "Starting service" in salida and "Error" not in salida and "Exception" not in salida
 
+    def cerrar_sonido(self):
+        """Cierra del todo la aplicación auxiliar (primero devuelve el volumen de llamada)."""
+        self.sonido("STOP")
+        self._run("shell", "am", "force-stop", PAQUETE_SONIDO)
+
     def decir(self, texto):
         """Dice el texto con la voz del celular. Devuelve los segundos que conviene esperar, o 0 si falló."""
         t = base64.urlsafe_b64encode(texto.encode("utf-8")).decode("ascii")
